@@ -19,12 +19,12 @@ from prompt_toolkit.layout.toolbars import CompletionsToolbar, ArgToolbar, Searc
 from prompt_toolkit.layout.utils import token_list_width
 from prompt_toolkit.reactive import Integer
 from prompt_toolkit.selection import SelectionType
+from prompt_toolkit.token import Token
 
 from .filters import HasSignature, ShowSidebar, ShowSignature, ShowDocstring
 from .utils import if_mousedown
 
 from pygments.lexers import PythonLexer
-from pygments.token import Token
 
 import platform
 import sys

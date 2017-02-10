@@ -11,8 +11,8 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.filters import Condition, has_focus
-from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout.containers import HSplit, VSplit, Window, FloatContainer, Float, ConditionalContainer, Container, ScrollOffsets, Align
 from prompt_toolkit.layout.controls import BufferControl, TokenListControl
@@ -23,8 +23,8 @@ from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
 from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, MergedProcessor
 from prompt_toolkit.layout.toolbars import ArgToolbar, SearchToolbar
 from prompt_toolkit.layout.utils import token_list_to_text
+from prompt_toolkit.token import Token
 from pygments.lexers import RstLexer
-from pygments.token import Token
 
 from .utils import if_mousedown
 
@@ -162,7 +162,8 @@ class HistoryLayout(object):
             body=Window(
                 content=self.help_buffer_control,
                 right_margins=[ScrollbarMargin()],
-                scroll_offsets=ScrollOffsets(top=2, bottom=2)))
+                scroll_offsets=ScrollOffsets(top=2, bottom=2),
+                transparent=False))
 
         self.default_buffer_control = BufferControl(
             buffer=history.default_buffer,
