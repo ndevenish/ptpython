@@ -431,10 +431,10 @@ def _toggle_help(history):
     " Display/hide help. "
     help_buffer_control = history.history_layout.help_buffer_control
 
-    if history.app.layout.focussed_control == help_buffer_control:
+    if history.app.layout.current_control == help_buffer_control:
         history.app.layout.pop_focus()
     else:
-        history.app.layout.focussed_control = help_buffer_control
+        history.app.layout.current_control = help_buffer_control
 
 
 def _select_other_window(history):
@@ -443,10 +443,10 @@ def _select_other_window(history):
     layout = history.history_layout.layout
 
     if current_buffer == history.history_buffer:
-        layout.focussed_control = history.history_layout.default_buffer_control
+        layout.current_control = history.history_layout.default_buffer_control
 
     elif current_buffer == history.default_buffer:
-        layout.focussed_control = history.history_layout.history_buffer_control
+        layout.current_control = history.history_layout.history_buffer_control
 
 
 def create_key_bindings(history, python_input, history_mapping):
@@ -553,12 +553,12 @@ def create_key_bindings(history, python_input, history_mapping):
         " Suspend to background. "
         event.app.suspend_to_background()
 
-    return merge_key_bindings(
+    return merge_key_bindings([
         load_key_bindings(
             enable_search=True,
             enable_extra_page_navigation=True),
         bindings
-    )
+    ])
 
 
 class History(object):
