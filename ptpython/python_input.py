@@ -16,7 +16,7 @@ from prompt_toolkit.key_binding import merge_key_bindings, ConditionalKeyBinding
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout.lexers import PygmentsLexer
-from prompt_toolkit.shortcuts import create_output
+from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit.styles import DynamicStyle
 from prompt_toolkit.utils import is_windows
 from prompt_toolkit.validation import ConditionalValidator

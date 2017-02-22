@@ -7,7 +7,7 @@ way we don't block the UI of for instance ``turtle`` and other Tk libraries.
 in readline. ``prompt-toolkit`` doesn't understand that input hook, but this
 will fix it for Tk.)
 """
-from prompt_toolkit.shortcuts import create_event_loop as _create_event_loop
+from prompt_toolkit.eventloop.defaults import create_event_loop as _create_event_loop
 import sys
 import time
 

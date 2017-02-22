@@ -20,7 +20,7 @@ from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import PygmentsLexer
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
-from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, MergedProcessor
+from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, merge_processors
 from prompt_toolkit.layout.toolbars import ArgToolbar, SearchToolbar
 from prompt_toolkit.layout.utils import token_list_to_text
 from prompt_toolkit.token import Token
@@ -155,7 +155,7 @@ class HistoryLayout(object):
         self.help_buffer_control = BufferControl(
             buffer=history.help_buffer,
             lexer=PygmentsLexer(RstLexer),
-            input_processor=MergedProcessor(default_processors))
+            input_processor=merge_processors(default_processors))
 
         help_window = create_popup_window(
             title='History Help',
@@ -167,14 +167,14 @@ class HistoryLayout(object):
 
         self.default_buffer_control = BufferControl(
             buffer=history.default_buffer,
-            input_processor=MergedProcessor(
+            input_processor=merge_processors(
                 default_processors + [GrayExistingText(history.history_mapping)]),
             lexer=PygmentsLexer(PythonLexer))
 
         self.history_buffer_control = BufferControl(
             buffer=history.history_buffer,
             lexer=PygmentsLexer(PythonLexer),
-            input_processor=MergedProcessor(default_processors))
+            input_processor=merge_processors(default_processors))
 
         history_window = Window(
             content=self.history_buffer_control,

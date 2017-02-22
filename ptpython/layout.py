@@ -14,7 +14,7 @@ from prompt_toolkit.layout.lexers import SimpleLexer
 from prompt_toolkit.layout.margins import PromptMargin
 from prompt_toolkit.layout.menus import CompletionsMenu, MultiColumnCompletionsMenu
 from prompt_toolkit.layout.processors import ConditionalProcessor, AppendAutoSuggestion, HighlightSearchProcessor, HighlightSelectionProcessor, HighlightMatchingBracketProcessor, Processor, Transformation
-from prompt_toolkit.layout.processors import MergedProcessor
+from prompt_toolkit.layout.processors import merge_processors
 from prompt_toolkit.layout.toolbars import CompletionsToolbar, ArgToolbar, SearchToolbar, ValidationToolbar, SystemToolbar
 from prompt_toolkit.layout.utils import token_list_width
 from prompt_toolkit.reactive import Integer
@@ -507,7 +507,7 @@ def create_layout(python_input,
                 buffer=python_input.default_buffer,
                 search_buffer_control=search_toolbar.control,
                 lexer=lexer,
-                input_processor=MergedProcessor([
+                input_processor=merge_processors([
                     ConditionalProcessor(
                         processor=HighlightSearchProcessor(preview_search=True),
                         filter=HasFocus(SEARCH_BUFFER) | HasFocus(search_toolbar.control),
