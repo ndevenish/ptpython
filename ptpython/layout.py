@@ -19,7 +19,6 @@ from prompt_toolkit.layout.toolbars import CompletionsToolbar, ArgToolbar, Searc
 from prompt_toolkit.layout.utils import token_list_width
 from prompt_toolkit.reactive import Integer
 from prompt_toolkit.selection import SelectionType
-from prompt_toolkit.token import Token
 
 from .filters import HasSignature, ShowSidebar, ShowSignature, ShowDocstring
 from .utils import if_mousedown
@@ -75,12 +74,12 @@ def python_sidebar(python_input):
     """
     def get_tokens(app):
         tokens = []
-        T = Token.Sidebar
+        T = 'class:sidebar'
 
         def append_category(category):
             tokens.extend([
                 (T, '  '),
-                (T.Title, '   %-36s' % category.title),
+                (T + ',title', '   %-36s' % category.title),
                 (T, '\n'),
             ])
 
@@ -98,17 +97,17 @@ def python_sidebar(python_input):
                 option = python_input.selected_option
                 option.activate_next()
 
-            token = T.Selected if selected else T
+            token = T + ',selected' if selected else T
 
             tokens.append((T, ' >' if selected else '  '))
-            tokens.append((token.Label, '%-24s' % label, select_item))
-            tokens.append((token.Status, ' ', select_item))
-            tokens.append((token.Status, '%s' % status, goto_next))
+            tokens.append((token + ',label', '%-24s' % label, select_item))
+            tokens.append((token + ',status', ' ', select_item))
+            tokens.append((token + ',status', '%s' % status, goto_next))
 
             if selected:
-                tokens.append((Token.SetCursorPosition, ''))
+                tokens.append(('[SetCursorPosition]', ''))
 
-            tokens.append((token.Status, ' ' * (13 - len(status)), goto_next))
+            tokens.append((token + ',status', ' ' * (13 - len(status)), goto_next))
             tokens.append((T, '<' if selected else ''))
             tokens.append((T, '\n'))
 
@@ -135,7 +134,7 @@ def python_sidebar(python_input):
         content=Window(
             Control(get_tokens),
               #   has_focus=ShowSidebar(python_input) & ~IsDone()),
-            token=Token.Sidebar,
+            style='class:sidebar',
             width=Dimension.exact(43),
             height=Dimension(min=3),
             scroll_offsets=ScrollOffsets(top=1, bottom=1)),
@@ -148,19 +147,18 @@ def python_sidebar_navigation(python_input):
     """
     def get_tokens(app):
         tokens = []
-        T = Token.Sidebar
 
         # Show navigation info.
         tokens.extend([
-            (T.Separator, ' ' * 43 + '\n'),
-            (T, '    '),
-            (T.Key, '[Arrows]'),
-            (T, ' '),
-            (T.Key.Description, 'Navigate'),
-            (T, ' '),
-            (T.Key, '[Enter]'),
-            (T, ' '),
-            (T.Key.Description, 'Hide menu'),
+            ('class:sidebar,separator', ' ' * 43 + '\n'),
+            ('class:sidebar', '    '),
+            ('class:sidebar,key', '[Arrows]'),
+            ('class:sidebar', ' '),
+            ('class:sidebar,description', 'Navigate'),
+            ('class:sidebar', ' '),
+            ('class:sidebar,key', '[Enter]'),
+            ('class:sidebar', ' '),
+            ('class:sidebar,description', 'Hide menu'),
         ])
 
         return tokens
@@ -168,7 +166,7 @@ def python_sidebar_navigation(python_input):
     return ConditionalContainer(
         content=Window(
             TokenListControl(get_tokens),
-            token=Token.Sidebar,
+            style='class:sidebar',
             width=Dimension.exact(43),
             height=Dimension.exact(2)),
         filter=ShowSidebar(python_input) & ~IsDone())
@@ -178,7 +176,7 @@ def python_sidebar_help(python_input):
     """
     Create the `Layout` for the help text for the current item in the sidebar.
     """
-    token = Token.Sidebar.HelpText
+    token = 'class:sidebar,sidebar-helptext'
 
     def get_current_description():
         """
@@ -198,7 +196,7 @@ def python_sidebar_help(python_input):
     return ConditionalContainer(
         content=Window(
             TokenListControl(get_help_tokens),
-            token=token,
+            style=token,
             height=Dimension(min=3)),
         filter=ShowSidebar(python_input) &
                Condition(lambda app: python_input.show_sidebar_help) & ~IsDone())
@@ -211,7 +209,7 @@ def signature_toolbar(python_input):
     def get_tokens(app):
         result = []
         append = result.append
-        Signature = Token.Toolbar.Signature
+        Signature = 'class:signature-toolbar'
 
         if python_input.signatures:
             sig = python_input.signatures[0]  # Always take the first one.
@@ -298,7 +296,7 @@ def status_bar(python_input):
     """
     Create the `Layout` for the status bar.
     """
-    TB = Token.Toolbar.Status
+    TB = 'class:status-toolbar'
 
     @if_mousedown
     def toggle_paste_mode(app, mouse_event):
@@ -330,21 +328,21 @@ def status_bar(python_input):
             append((TB, '[Ctrl-W] Cut [Meta-W] Copy [Ctrl-Y] Paste [Ctrl-G] Cancel'))
         else:
             result.extend([
-                (TB.Key, '[F3]', enter_history),
+                (TB + ' class:key', '[F3]', enter_history),
                 (TB, ' History ', enter_history),
-                (TB.Key, '[F6]', toggle_paste_mode),
+                (TB + ' class:key', '[F6]', toggle_paste_mode),
                 (TB, ' ', toggle_paste_mode),
             ])
 
             if python_input.paste_mode:
-                append((TB.PasteModeOn, 'Paste mode (on)', toggle_paste_mode))
+                append((TB + ' class:paste-mode-on', 'Paste mode (on)', toggle_paste_mode))
             else:
                 append((TB, 'Paste mode', toggle_paste_mode))
 
         return result
 
     return ConditionalContainer(
-            content=Window(content=TokenListControl(get_tokens), token=TB),
+            content=Window(content=TokenListControl(get_tokens), style=TB),
             filter=~IsDone() & RendererHeightIsKnown() &
                  Condition(lambda app: python_input.show_status_bar and
                                       not python_input.show_exit_confirmation))
@@ -361,36 +359,37 @@ def get_inputmode_tokens(app, python_input):
     def toggle_vi_mode(app, mouse_event):
         python_input.vi_mode = not python_input.vi_mode
 
-    token = Token.Toolbar.Status
+    token = 'class:status-toolbar'
+    input_mode_t = 'class:status-toolbar,input-mode'
 
     mode = app.vi_state.input_mode
     result = []
     append = result.append
 
-    append((token.InputMode, '[F4] ', toggle_vi_mode))
+    append((token + 'class:input-mode', '[F4] ', toggle_vi_mode))
 
     # InputMode
     if python_input.vi_mode:
         if bool(app.current_buffer.selection_state):
             if app.current_buffer.selection_state.type == SelectionType.LINES:
-                append((token.InputMode, 'Vi (VISUAL LINE)', toggle_vi_mode))
+                append((input_mode_t, 'Vi (VISUAL LINE)', toggle_vi_mode))
             elif app.current_buffer.selection_state.type == SelectionType.CHARACTERS:
-                append((token.InputMode, 'Vi (VISUAL)', toggle_vi_mode))
+                append((input_mode_t, 'Vi (VISUAL)', toggle_vi_mode))
                 append((token, ' '))
             elif app.current_buffer.selection_state.type == 'BLOCK':
-                append((token.InputMode, 'Vi (VISUAL BLOCK)', toggle_vi_mode))
+                append((input_mode_t, 'Vi (VISUAL BLOCK)', toggle_vi_mode))
                 append((token, ' '))
         elif mode in (InputMode.INSERT, 'vi-insert-multiple'):
-            append((token.InputMode, 'Vi (INSERT)', toggle_vi_mode))
+            append((input_mode_t, 'Vi (INSERT)', toggle_vi_mode))
             append((token, '  '))
         elif mode == InputMode.NAVIGATION:
-            append((token.InputMode, 'Vi (NAV)', toggle_vi_mode))
+            append((input_mode_t, 'Vi (NAV)', toggle_vi_mode))
             append((token, '     '))
         elif mode == InputMode.REPLACE:
-            append((token.InputMode, 'Vi (REPLACE)', toggle_vi_mode))
+            append((input_mode_t, 'Vi (REPLACE)', toggle_vi_mode))
             append((token, ' '))
     else:
-        append((token.InputMode, 'Emacs', toggle_vi_mode))
+        append((input_mode_t, 'Emacs', toggle_vi_mode))
         append((token, ' '))
 
     return result
@@ -406,14 +405,14 @@ def show_sidebar_button_info(python_input):
         " Click handler for the menu. "
         python_input.show_sidebar = not python_input.show_sidebar
 
-    token = Token.Toolbar.Status
+    token = 'class:status-toolbar'
 
     version = sys.version_info
     tokens = [
-        (token.Key, '[F2]', toggle_sidebar),
+        (token + ' class:key', '[F2]', toggle_sidebar),
         (token, ' Menu', toggle_sidebar),
         (token, ' - '),
-        (token.PythonVersion, '%s %i.%i.%i' % (platform.python_implementation(),
+        (token + ' class:python-version', '%s %i.%i.%i' % (platform.python_implementation(),
                                                version[0], version[1], version[2])),
         (token, ' '),
     ]
@@ -426,7 +425,7 @@ def show_sidebar_button_info(python_input):
     return ConditionalContainer(
         content=Window(
             TokenListControl(get_tokens),
-            token=token,
+            style=token,
             height=Dimension.exact(1),
             width=Dimension.exact(width)),
         filter=~IsDone() & RendererHeightIsKnown() &
@@ -434,22 +433,22 @@ def show_sidebar_button_info(python_input):
                                   not python_input.show_exit_confirmation))
 
 
-def exit_confirmation(python_input, token=Token.ExitConfirmation):
+def exit_confirmation(python_input, style='class:exit-confirmation'):
     """
     Create `Layout` for the exit message.
     """
     def get_tokens(app):
         # Show "Do you really want to exit?"
         return [
-            (token, '\n %s ([y]/n)' % python_input.exit_message),
-            (Token.SetCursorPosition, ''),
-            (token, '  \n'),
+            (style, '\n %s ([y]/n)' % python_input.exit_message),
+            ('[SetCursorPosition]', ''),
+            (style, '  \n'),
         ]
 
     visible = ~IsDone() & Condition(lambda app: python_input.show_exit_confirmation)
 
     return ConditionalContainer(
-        content=Window(TokenListControl(get_tokens), token=token),   # , has_focus=visible)),
+        content=Window(TokenListControl(get_tokens), style=style),   # , has_focus=visible)),
         filter=visible)
 
 
@@ -458,7 +457,7 @@ def meta_enter_message(python_input):
     Create the `Layout` for the 'Meta+Enter` message.
     """
     def get_tokens(app):
-        return [(Token.AcceptMessage, ' [Meta+Enter] Execute ')]
+        return [('class:accept-message', ' [Meta+Enter] Execute ')]
 
     def extra_condition(app):
         " Only show when... "
@@ -580,13 +579,13 @@ def create_layout(python_input,
                     content=Window(
                         height=D.exact(1),
                         char='\u2500',
-                        token=Token.Separator),
+                        style='class:separator'),
                     filter=HasSignature(python_input) & ShowDocstring(python_input) & ~IsDone()),
                 ConditionalContainer(
                     content=Window(
                         BufferControl(
                             buffer=python_input.docstring_buffer,
-                            lexer=SimpleLexer(token=Token.Docstring),
+                            lexer=SimpleLexer(style='class:docstring'),
                             #lexer=PythonLexer,
                         ),
                         height=D(max=12)),

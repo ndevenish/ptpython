@@ -16,7 +16,7 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.eventloop.defaults import create_asyncio_event_loop
 from prompt_toolkit.layout.utils import token_list_width
-from prompt_toolkit.styles import style_from_pygments
+from prompt_toolkit.styles import style_from_pygments, token_list_to_text_fragments
 from prompt_toolkit.utils import DummyContext
 
 from .python_input import PythonInput
@@ -131,7 +131,8 @@ class PythonRepl(PythonInput):
 
                     # Write output tokens.
                     out_tokens.extend(_lex_python_result(result_str))
-                    self.app.print_tokens(out_tokens)
+                    self.app.print_text_fragments(
+                        token_list_to_text_fragments(out_tokens))
             # If not a valid `eval` expression, run using `exec` instead.
             except SyntaxError:
                 code = compile_with_flags(line, 'exec')
@@ -168,7 +169,9 @@ class PythonRepl(PythonInput):
         # (We use the default style. Most other styles result
         # in unreadable colors for the traceback.)
         tokens = _lex_python_traceback(tb)
-        self.app.print_tokens(tokens, style=style_from_pygments(DefaultStyle))
+        self.app.print_text_fragments(
+            token_list_to_text_fragments(tokens),
+            style=style_from_pygments(DefaultStyle))
 
         output.write('%s\n' % e)
         output.flush()
