@@ -15,14 +15,14 @@ from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout.containers import HSplit, VSplit, Window, FloatContainer, Float, ConditionalContainer, Container, ScrollOffsets, Align
-from prompt_toolkit.layout.controls import BufferControl, TokenListControl
+from prompt_toolkit.layout.controls import BufferControl, TextFragmentsControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import PygmentsLexer
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
 from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, merge_processors
 from prompt_toolkit.layout.toolbars import ArgToolbar, SearchToolbar
-from prompt_toolkit.layout.utils import token_list_to_text
+from prompt_toolkit.layout.utils import fragment_list_to_text
 from pygments.lexers import RstLexer
 
 from .utils import if_mousedown
@@ -108,7 +108,7 @@ def create_popup_window(title, body):
                    char=BORDER.TOP_LEFT,
                    style='class:window-border'),
             Window(
-                content=TokenListControl(
+                content=TextFragmentsControl(
                     get_tokens=lambda app: [('class:window-title', ' %s ' % title)]),
                 align=Align.CENTER,
                 char=BORDER.HORIZONTAL,
@@ -184,7 +184,7 @@ class HistoryLayout(object):
         self.root_container = HSplit([
             #  Top title bar.
             Window(
-                content=TokenListControl(get_tokens=_get_top_toolbar_tokens),
+                content=TextFragmentsControl(get_tokens=_get_top_toolbar_tokens),
                 align=Align.CENTER,
                 style='class:status-toolbar'),
             FloatContainer(
@@ -217,7 +217,7 @@ class HistoryLayout(object):
             ArgToolbar(),
     #        SearchToolbar(),  # XXX
             Window(
-                content=TokenListControl(
+                content=TextFragmentsControl(
                     get_tokens=partial(_get_bottom_toolbar_tokens, history=history)),
                 style='class:status-toolbar'),
         ])
@@ -357,7 +357,7 @@ class GrayExistingText(Processor):
 
         if (lineno < self._lines_before or
                 lineno >= self._lines_before + len(self.history_mapping.selected_lines)):
-            text = token_list_to_text(tokens)
+            text = fragment_list_to_text(tokens)
             return Transformation(tokens=[('class:history-existing-input', text)])
         else:
             return Transformation(tokens=tokens)

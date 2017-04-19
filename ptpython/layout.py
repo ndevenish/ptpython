@@ -7,7 +7,7 @@ from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
 from prompt_toolkit.filters import IsDone, HasCompletions, RendererHeightIsKnown, HasFocus, Condition
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout.containers import Window, HSplit, VSplit, FloatContainer, Float, ConditionalContainer, ScrollOffsets
-from prompt_toolkit.layout.controls import BufferControl, TokenListControl
+from prompt_toolkit.layout.controls import BufferControl, TextFragmentsControl
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import SimpleLexer
@@ -16,7 +16,7 @@ from prompt_toolkit.layout.menus import CompletionsMenu, MultiColumnCompletionsM
 from prompt_toolkit.layout.processors import ConditionalProcessor, AppendAutoSuggestion, HighlightSearchProcessor, HighlightSelectionProcessor, HighlightMatchingBracketProcessor, Processor, Transformation
 from prompt_toolkit.layout.processors import merge_processors
 from prompt_toolkit.layout.toolbars import CompletionsToolbar, ArgToolbar, SearchToolbar, ValidationToolbar, SystemToolbar
-from prompt_toolkit.layout.utils import token_list_width
+from prompt_toolkit.layout.utils import fragment_list_width
 from prompt_toolkit.reactive import Integer
 from prompt_toolkit.selection import SelectionType
 
@@ -123,7 +123,7 @@ def python_sidebar(python_input):
 
         return tokens
 
-    class Control(TokenListControl):
+    class Control(TextFragmentsControl):
         def move_cursor_down(self, app):
             python_input.selected_option_index += 1
 
@@ -165,7 +165,7 @@ def python_sidebar_navigation(python_input):
 
     return ConditionalContainer(
         content=Window(
-            TokenListControl(get_tokens),
+            TextFragmentsControl(get_tokens),
             style='class:sidebar',
             width=Dimension.exact(43),
             height=Dimension.exact(2)),
@@ -195,7 +195,7 @@ def python_sidebar_help(python_input):
 
     return ConditionalContainer(
         content=Window(
-            TokenListControl(get_help_tokens),
+            TextFragmentsControl(get_help_tokens),
             style=token,
             height=Dimension(min=3)),
         filter=ShowSidebar(python_input) &
@@ -222,7 +222,7 @@ def signature_toolbar(python_input):
                 # See also: https://github.com/davidhalter/jedi/issues/490
                 return []
 
-            append((Signature.Operator, '('))
+            append((Signature + ',operator', '('))
 
             try:
                 enumerated_params = enumerate(sig.params)
@@ -242,22 +242,22 @@ def signature_toolbar(python_input):
                 if i == sig_index:
                     # Note: we use `_Param.description` instead of
                     #       `_Param.name`, that way we also get the '*' before args.
-                    append((Signature.CurrentName, str(description)))
+                    append((Signature + ',current-name', str(description)))
                 else:
                     append((Signature, str(description)))
-                append((Signature.Operator, ', '))
+                append((Signature + ',operator', ', '))
 
             if sig.params:
                 # Pop last comma
                 result.pop()
 
-            append((Signature.Operator, ')'))
+            append((Signature + ',operator', ')'))
             append((Signature, ' '))
         return result
 
     return ConditionalContainer(
         content=Window(
-            TokenListControl(get_tokens),
+            TextFragmentsControl(get_tokens),
             height=Dimension.exact(1)),
         filter=
             # Show only when there is a signature
@@ -342,7 +342,7 @@ def status_bar(python_input):
         return result
 
     return ConditionalContainer(
-            content=Window(content=TokenListControl(get_tokens), style=TB),
+            content=Window(content=TextFragmentsControl(get_tokens), style=TB),
             filter=~IsDone() & RendererHeightIsKnown() &
                  Condition(lambda app: python_input.show_status_bar and
                                       not python_input.show_exit_confirmation))
@@ -416,7 +416,7 @@ def show_sidebar_button_info(python_input):
                                                version[0], version[1], version[2])),
         (token, ' '),
     ]
-    width = token_list_width(tokens)
+    width = fragment_list_width(tokens)
 
     def get_tokens(app):
         # Python version
@@ -424,7 +424,7 @@ def show_sidebar_button_info(python_input):
 
     return ConditionalContainer(
         content=Window(
-            TokenListControl(get_tokens),
+            TextFragmentsControl(get_tokens),
             style=token,
             height=Dimension.exact(1),
             width=Dimension.exact(width)),
@@ -448,7 +448,7 @@ def exit_confirmation(python_input, style='class:exit-confirmation'):
     visible = ~IsDone() & Condition(lambda app: python_input.show_exit_confirmation)
 
     return ConditionalContainer(
-        content=Window(TokenListControl(get_tokens), style=style),   # , has_focus=visible)),
+        content=Window(TextFragmentsControl(get_tokens), style=style),   # , has_focus=visible)),
         filter=visible)
 
 
@@ -472,7 +472,7 @@ def meta_enter_message(python_input):
     visible = ~IsDone() & HasFocus(DEFAULT_BUFFER) & Condition(extra_condition)
 
     return ConditionalContainer(
-        content=Window(TokenListControl(get_tokens)),
+        content=Window(TextFragmentsControl(get_tokens)),
         filter=visible)
 
 

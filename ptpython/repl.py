@@ -13,9 +13,8 @@ from pygments.lexers import PythonTracebackLexer, PythonLexer
 from pygments.styles.default import DefaultStyle
 
 from prompt_toolkit.document import Document
-from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.eventloop.defaults import create_asyncio_event_loop
-from prompt_toolkit.layout.utils import token_list_width
+from prompt_toolkit.layout.utils import fragment_list_width
 from prompt_toolkit.styles import style_from_pygments, token_list_to_text_fragments
 from prompt_toolkit.utils import DummyContext
 
@@ -126,7 +125,7 @@ class PythonRepl(PythonInput):
                         result_str = '%s\n' % repr(result).decode('utf-8')
 
                     # Align every line to the first one.
-                    line_sep = '\n' + ' ' * token_list_width(out_tokens)
+                    line_sep = '\n' + ' ' * fragment_list_width(out_tokens)
                     result_str = line_sep.join(result_str.splitlines()) + '\n'
 
                     # Write output tokens.
