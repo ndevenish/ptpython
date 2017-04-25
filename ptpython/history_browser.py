@@ -106,36 +106,36 @@ def create_popup_window(title, body):
         VSplit([
             Window(width=D.exact(1), height=D.exact(1),
                    char=BORDER.TOP_LEFT,
-                   style='class:window-border'),
+                   style='class:window.border'),
             Window(
                 content=TextFragmentsControl(
-                    get_tokens=lambda app: [('class:window-title', ' %s ' % title)]),
+                    get_tokens=lambda app: [('class:token.window.title', ' %s ' % title)]),
                 align=Align.CENTER,
                 char=BORDER.HORIZONTAL,
-                style='class:window-border'),
+                style='class:window.border'),
             Window(width=D.exact(1), height=D.exact(1),
                    char=BORDER.TOP_RIGHT,
-                   style='class:window-border'),
+                   style='class:token.window.border'),
         ]),
         VSplit([
             Window(width=D.exact(1),
                    char=BORDER.VERTICAL,
-                   style='class:window-border'),
+                   style='class:window.border'),
             body,
             Window(width=D.exact(1),
                    char=BORDER.VERTICAL,
-                   style='class:window-border'),
+                   style='class:window.border'),
         ]),
         VSplit([
             Window(width=D.exact(1), height=D.exact(1),
                    char=BORDER.BOTTOM_LEFT,
-                   style='class:window-border'),
+                   style='class:window.border'),
             Window(height=D.exact(1),
                    char=BORDER.HORIZONTAL,
-                   style='class:window-border'),
+                   style='class:window.border'),
             Window(width=D.exact(1), height=D.exact(1),
                    char=BORDER.BOTTOM_RIGHT,
-                   style='class:window-border'),
+                   style='class:window.border'),
         ]),
     ])
 
@@ -226,7 +226,7 @@ class HistoryLayout(object):
 
 
 def _get_top_toolbar_tokens(app):
-    return [('class:status-toolbar', 'History browser - Insert from history')]
+    return [('class:status-bar.title', 'History browser - Insert from history')]
 
 
 def _get_bottom_toolbar_tokens(app, history):
@@ -240,17 +240,16 @@ def _get_bottom_toolbar_tokens(app, history):
         _select_other_window(history)
 
     return [
-        ('class:status-toolbar', ' ')
-    ] + get_inputmode_tokens(app, python_input) + [
-        ('class:status-toolbar', ' '),
-        ('class:status-toolbar,key', '[Space]'),
-        ('class:status-toolbar', ' Toggle '),
-        ('class:status-toolbar,key', '[Tab]', tab),
-        ('class:status-toolbar', ' Focus ', tab),
-        ('class:status-toolbar,key', '[Enter]'),
-        ('class:status-toolbar', ' Accept '),
-        ('class:status-toolbar,key', '[F1]', f1),
-        ('class:status-toolbar', ' Help ', f1),
+           ('class:status-toolbar', ' ') ] + get_inputmode_tokens(app, python_input) + [
+           ('class:status-toolbar', ' '),
+           ('class:status-toolbar.key', '[Space]'),
+           ('class:status-toolbar', ' Toggle '),
+           ('class:status-toolbar.key', '[Tab]', tab),
+           ('class:status-toolbar', ' Focus ', tab),
+           ('class:status-toolbar.key', '[Enter]'),
+           ('class:status-toolbar', ' Accept '),
+           ('class:status-toolbar.key', '[F1]', f1),
+           ('class:status-toolbar', ' Help ', f1),
     ]
 
 
@@ -351,14 +350,13 @@ class GrayExistingText(Processor):
         self._lines_before = len(history_mapping.original_document.text_before_cursor.splitlines())
 
     def apply_transformation(self, transformation_input):
-        app = transformation_input.app
         lineno = transformation_input.lineno
         tokens = transformation_input.tokens
 
         if (lineno < self._lines_before or
                 lineno >= self._lines_before + len(self.history_mapping.selected_lines)):
             text = fragment_list_to_text(tokens)
-            return Transformation(tokens=[('class:history-existing-input', text)])
+            return Transformation(tokens=[('class:history.existing-input', text)])
         else:
             return Transformation(tokens=tokens)
 

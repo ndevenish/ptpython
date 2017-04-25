@@ -90,12 +90,12 @@ default_ui_style = {
 
         # "arg" toolbar.
         'arg-toolbar':                            '#22aaaa noinherit',
-        'arg-toolbar,text':                       'noinherit',
+        'arg-toolbar.text':                       'noinherit',
 
         # Signature toolbar.
         'signature-toolbar':                      'bg:#44bbbb #000000',
-        'signature-toolbar,currentname':          'bg:#008888 #ffffff bold',
-        'signature-toolbar,operator':             '#000000 bold',
+        'signature-toolbar.currentname':          'bg:#008888 #ffffff bold',
+        'signature-toolbar.operator':             '#000000 bold',
 
         'docstring':                              '#888888',
 
@@ -104,11 +104,11 @@ default_ui_style = {
 
         # Status toolbar.
         'status-toolbar':                         'bg:#222222 #aaaaaa',
-        'status-toolbar,title':                   'underline',
-        'status-toolbar,inputmode':               'bg:#222222 #ffffaa',
-        'status-toolbar,key':                     'bg:#000000 #888888',
-        'status-toolbar,pastemodeon':             'bg:#aa4444 #ffffff',
-        'status-toolbar,pythonversion':           'bg:#222222 #ffffff bold',
+        'status-toolbar.title':                   'underline',
+        'status-toolbar.inputmode':               'bg:#222222 #ffffaa',
+        'status-toolbar.key':                     'bg:#000000 #888888',
+        'status-toolbar.pastemodeon':             'bg:#aa4444 #ffffff',
+        'status-toolbar.pythonversion':           'bg:#222222 #ffffff bold',
 
         # When Control-C has been pressed. Grayed.
 #        'aborted':                                '#888888 bg:default important',
