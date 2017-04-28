@@ -115,16 +115,16 @@ default_ui_style = {
 
         # The options sidebar.
         'sidebar':                                'bg:#bbbbbb #000000',
-        'sidebar title':                          'bg:#668866 #ffffff',
-        'sidebar label':                          'bg:#bbbbbb #222222',
-        'sidebar status':                         'bg:#dddddd #000011',
-        'sidebar selected label':                 'bg:#222222 #eeeeee',
-        'sidebar selected status':                'bg:#444444 #ffffff bold',
+        'sidebar.title':                          'bg:#668866 #ffffff',
+        'sidebar.label':                          'bg:#bbbbbb #222222',
+        'sidebar.status':                         'bg:#dddddd #000011',
+        'sidebar.label selected':                 'bg:#222222 #eeeeee',
+        'sidebar.status selected':                'bg:#444444 #ffffff bold',
 
-        'sidebar separator':                      'bg:#bbbbbb #ffffff underline',
-        'sidebar key':                            'bg:#bbddbb #000000 bold',
-        'sidebar key description':                'bg:#bbbbbb #000000',
-        'sidebar helptext':                       'bg:#fdf6e3 #000011',
+        'sidebar.separator':                      'underline',
+        'sidebar.key':                            'bg:#bbddbb #000000 bold',
+        'sidebar.key.description':                'bg:#bbbbbb #000000',
+        'sidebar.helptext':                       'bg:#fdf6e3 #000011',
 
 #        # Styling for the history layout.
 #        history.line:                          '',

@@ -74,13 +74,12 @@ def python_sidebar(python_input):
     """
     def get_tokens(app):
         tokens = []
-        T = 'class:sidebar'
 
         def append_category(category):
             tokens.extend([
-                (T, '  '),
-                (T + ',title', '   %-36s' % category.title),
-                (T, '\n'),
+                ('class:sidebar', '  '),
+                ('class:sidebar.title', '   %-36s' % category.title),
+                ('class:sidebar', '\n'),
             ])
 
         def append(index, label, status):
@@ -97,19 +96,19 @@ def python_sidebar(python_input):
                 option = python_input.selected_option
                 option.activate_next()
 
-            token = T + ',selected' if selected else T
+            sel = ',selected' if selected else ''
 
-            tokens.append((T, ' >' if selected else '  '))
-            tokens.append((token + ',label', '%-24s' % label, select_item))
-            tokens.append((token + ',status', ' ', select_item))
-            tokens.append((token + ',status', '%s' % status, goto_next))
+            tokens.append(('class:sidebar' + sel, ' >' if selected else '  '))
+            tokens.append(('class:sidebar.label' + sel, '%-24s' % label, select_item))
+            tokens.append(('class:sidebar.status' + sel, ' ', select_item))
+            tokens.append(('class:sidebar.status' + sel, '%s' % status, goto_next))
 
             if selected:
                 tokens.append(('[SetCursorPosition]', ''))
 
-            tokens.append((token + ',status', ' ' * (13 - len(status)), goto_next))
-            tokens.append((T, '<' if selected else ''))
-            tokens.append((T, '\n'))
+            tokens.append(('class:sidebar.status' + sel, ' ' * (13 - len(status)), goto_next))
+            tokens.append(('class:sidebar', '<' if selected else ''))
+            tokens.append(('class:sidebar', '\n'))
 
         i = 0
         for category in python_input.options:
@@ -130,15 +129,12 @@ def python_sidebar(python_input):
         def move_cursor_up(self, app):
             python_input.selected_option_index -= 1
 
-    return ConditionalContainer(
-        content=Window(
-            Control(get_tokens),
-              #   has_focus=ShowSidebar(python_input) & ~IsDone()),
-            style='class:sidebar',
-            width=Dimension.exact(43),
-            height=Dimension(min=3),
-            scroll_offsets=ScrollOffsets(top=1, bottom=1)),
-        filter=ShowSidebar(python_input) & ~IsDone())
+    return Window(
+        Control(get_tokens),
+        style='class:sidebar',
+        width=Dimension.exact(43),
+        height=Dimension(min=3),
+        scroll_offsets=ScrollOffsets(top=1, bottom=1))
 
 
 def python_sidebar_navigation(python_input):
@@ -150,33 +146,30 @@ def python_sidebar_navigation(python_input):
 
         # Show navigation info.
         tokens.extend([
-            ('class:sidebar,separator', ' ' * 43 + '\n'),
             ('class:sidebar', '    '),
-            ('class:sidebar,key', '[Arrows]'),
+            ('class:sidebar.key', '[Arrows]'),
             ('class:sidebar', ' '),
-            ('class:sidebar,description', 'Navigate'),
+            ('class:sidebar.description', 'Navigate'),
             ('class:sidebar', ' '),
-            ('class:sidebar,key', '[Enter]'),
+            ('class:sidebar.key', '[Enter]'),
             ('class:sidebar', ' '),
-            ('class:sidebar,description', 'Hide menu'),
+            ('class:sidebar.description', 'Hide menu'),
         ])
 
         return tokens
 
-    return ConditionalContainer(
-        content=Window(
-            TextFragmentsControl(get_tokens),
-            style='class:sidebar',
-            width=Dimension.exact(43),
-            height=Dimension.exact(2)),
-        filter=ShowSidebar(python_input) & ~IsDone())
+    return Window(
+        TextFragmentsControl(get_tokens),
+        style='class:sidebar',
+        width=Dimension.exact(43),
+        height=Dimension.exact(1))
 
 
 def python_sidebar_help(python_input):
     """
     Create the `Layout` for the help text for the current item in the sidebar.
     """
-    token = 'class:sidebar,sidebar-helptext'
+    token = 'class:sidebar.helptext'
 
     def get_current_description():
         """
@@ -405,16 +398,14 @@ def show_sidebar_button_info(python_input):
         " Click handler for the menu. "
         python_input.show_sidebar = not python_input.show_sidebar
 
-    token = 'class:status-toolbar'
-
     version = sys.version_info
     tokens = [
-        (token + ' class:key', '[F2]', toggle_sidebar),
-        (token, ' Menu', toggle_sidebar),
-        (token, ' - '),
-        (token + ' class:python-version', '%s %i.%i.%i' % (platform.python_implementation(),
+        ('class:status-toolbar.key', '[F2]', toggle_sidebar),
+        ('class:status-toolbar', ' Menu', toggle_sidebar),
+        ('class:status-toolbar', ' - '),
+        ('class:status-toolbar.python-version', '%s %i.%i.%i' % (platform.python_implementation(),
                                                version[0], version[1], version[2])),
-        (token, ' '),
+        ('class:status-toolbar', ' '),
     ]
     width = fragment_list_width(tokens)
 
@@ -425,7 +416,7 @@ def show_sidebar_button_info(python_input):
     return ConditionalContainer(
         content=Window(
             TextFragmentsControl(get_tokens),
-            style=token,
+            style='class:status-toolbar',
             height=Dimension.exact(1),
             width=Dimension.exact(width)),
         filter=~IsDone() & RendererHeightIsKnown() &
@@ -592,10 +583,13 @@ def create_layout(python_input,
                     filter=HasSignature(python_input) & ShowDocstring(python_input) & ~IsDone(),
                 ),
             ]),
-            HSplit([
-                python_sidebar(python_input),
-                python_sidebar_navigation(python_input),
-            ])
+            ConditionalContainer(
+                content=HSplit([
+                    python_sidebar(python_input),
+                    Window(style='class:sidebar,separator', height=1),
+                    python_sidebar_navigation(python_input),
+                ]),
+                filter=ShowSidebar(python_input) & ~IsDone())
         ]),
     ] + extra_toolbars + [
         VSplit([
