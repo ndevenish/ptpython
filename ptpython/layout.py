@@ -7,7 +7,7 @@ from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
 from prompt_toolkit.filters import IsDone, HasCompletions, RendererHeightIsKnown, HasFocus, Condition
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout.containers import Window, HSplit, VSplit, FloatContainer, Float, ConditionalContainer, ScrollOffsets
-from prompt_toolkit.layout.controls import BufferControl, TextFragmentsControl
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import SimpleLexer
@@ -72,7 +72,7 @@ def python_sidebar(python_input):
     """
     Create the `Layout` for the sidebar with the configurable options.
     """
-    def get_tokens(app):
+    def get_text_fragments(app):
         tokens = []
 
         def append_category(category):
@@ -122,7 +122,7 @@ def python_sidebar(python_input):
 
         return tokens
 
-    class Control(TextFragmentsControl):
+    class Control(FormattedTextControl):
         def move_cursor_down(self, app):
             python_input.selected_option_index += 1
 
@@ -130,7 +130,7 @@ def python_sidebar(python_input):
             python_input.selected_option_index -= 1
 
     return Window(
-        Control(get_tokens),
+        Control(get_text_fragments),
         style='class:sidebar',
         width=Dimension.exact(43),
         height=Dimension(min=3),
@@ -141,7 +141,7 @@ def python_sidebar_navigation(python_input):
     """
     Create the `Layout` showing the navigation information for the sidebar.
     """
-    def get_tokens(app):
+    def get_text_fragments(app):
         tokens = []
 
         # Show navigation info.
@@ -159,7 +159,7 @@ def python_sidebar_navigation(python_input):
         return tokens
 
     return Window(
-        TextFragmentsControl(get_tokens),
+        FormattedTextControl(get_text_fragments),
         style='class:sidebar',
         width=Dimension.exact(43),
         height=Dimension.exact(1))
@@ -183,12 +183,12 @@ def python_sidebar_help(python_input):
                 i += 1
         return ''
 
-    def get_help_tokens(app):
+    def get_help_text(app):
         return [(token, get_current_description())]
 
     return ConditionalContainer(
         content=Window(
-            TextFragmentsControl(get_help_tokens),
+            FormattedTextControl(get_help_text),
             style=token,
             height=Dimension(min=3)),
         filter=ShowSidebar(python_input) &
@@ -199,7 +199,7 @@ def signature_toolbar(python_input):
     """
     Return the `Layout` for the signature.
     """
-    def get_tokens(app):
+    def get_text_fragments(app):
         result = []
         append = result.append
         Signature = 'class:signature-toolbar'
@@ -250,7 +250,7 @@ def signature_toolbar(python_input):
 
     return ConditionalContainer(
         content=Window(
-            TextFragmentsControl(get_tokens),
+            FormattedTextControl(get_text_fragments),
             height=Dimension.exact(1)),
         filter=
             # Show only when there is a signature
@@ -299,14 +299,14 @@ def status_bar(python_input):
     def enter_history(app, mouse_event):
         python_input.enter_history(app)
 
-    def get_tokens(app):
+    def get_text_fragments(app):
         python_buffer = python_input.default_buffer
 
         result = []
         append = result.append
 
         append((TB, ' '))
-        result.extend(get_inputmode_tokens(app, python_input))
+        result.extend(get_inputmode_fragments(app, python_input))
         append((TB, ' '))
 
         # Position in history.
@@ -335,13 +335,13 @@ def status_bar(python_input):
         return result
 
     return ConditionalContainer(
-            content=Window(content=TextFragmentsControl(get_tokens), style=TB),
+            content=Window(content=FormattedTextControl(get_text_fragments), style=TB),
             filter=~IsDone() & RendererHeightIsKnown() &
                  Condition(lambda app: python_input.show_status_bar and
                                       not python_input.show_exit_confirmation))
 
 
-def get_inputmode_tokens(app, python_input):
+def get_inputmode_fragments(app, python_input):
     """
     Return current input mode as a list of (token, text) tuples for use in a
     toolbar.
@@ -409,13 +409,13 @@ def show_sidebar_button_info(python_input):
     ]
     width = fragment_list_width(tokens)
 
-    def get_tokens(app):
+    def get_text_fragments(app):
         # Python version
         return tokens
 
     return ConditionalContainer(
         content=Window(
-            TextFragmentsControl(get_tokens),
+            FormattedTextControl(get_text_fragments),
             style='class:status-toolbar',
             height=Dimension.exact(1),
             width=Dimension.exact(width)),
@@ -428,7 +428,7 @@ def exit_confirmation(python_input, style='class:exit-confirmation'):
     """
     Create `Layout` for the exit message.
     """
-    def get_tokens(app):
+    def get_text_fragments(app):
         # Show "Do you really want to exit?"
         return [
             (style, '\n %s ([y]/n)' % python_input.exit_message),
@@ -439,7 +439,7 @@ def exit_confirmation(python_input, style='class:exit-confirmation'):
     visible = ~IsDone() & Condition(lambda app: python_input.show_exit_confirmation)
 
     return ConditionalContainer(
-        content=Window(TextFragmentsControl(get_tokens), style=style),   # , has_focus=visible)),
+        content=Window(FormattedTextControl(get_text_fragments), style=style),   # , has_focus=visible)),
         filter=visible)
 
 
@@ -447,7 +447,7 @@ def meta_enter_message(python_input):
     """
     Create the `Layout` for the 'Meta+Enter` message.
     """
-    def get_tokens(app):
+    def get_text_fragments(app):
         return [('class:accept-message', ' [Meta+Enter] Execute ')]
 
     def extra_condition(app):
@@ -463,7 +463,7 @@ def meta_enter_message(python_input):
     visible = ~IsDone() & HasFocus(DEFAULT_BUFFER) & Condition(extra_condition)
 
     return ConditionalContainer(
-        content=Window(TextFragmentsControl(get_tokens)),
+        content=Window(FormattedTextControl(get_text_fragments)),
         filter=visible)
 
 

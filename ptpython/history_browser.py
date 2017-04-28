@@ -15,7 +15,7 @@ from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout.containers import HSplit, VSplit, Window, FloatContainer, Float, ConditionalContainer, Container, ScrollOffsets, Align
-from prompt_toolkit.layout.controls import BufferControl, TextFragmentsControl
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import PygmentsLexer
@@ -27,7 +27,7 @@ from pygments.lexers import RstLexer
 
 from .utils import if_mousedown
 
-from ptpython.layout import get_inputmode_tokens
+from ptpython.layout import get_inputmode_fragments
 from functools import partial
 import six
 
@@ -40,7 +40,7 @@ else:
 HISTORY_COUNT = 2000
 
 __all__ = (
-    'create_history_application',
+    'HistoryLayout',
 )
 
 HELP_TEXT = """
@@ -94,7 +94,7 @@ class BORDER:
     LIGHT_VERTICAL = '\u2502'
 
 
-def create_popup_window(title, body):
+def _create_popup_window(title, body):
     """
     Return the layout for a pop-up window. It consists of a title bar showing
     the `title` text, and a body layout. The window is surrounded by borders.
@@ -108,14 +108,14 @@ def create_popup_window(title, body):
                    char=BORDER.TOP_LEFT,
                    style='class:window.border'),
             Window(
-                content=TextFragmentsControl(
-                    get_tokens=lambda app: [('class:token.window.title', ' %s ' % title)]),
+                content=FormattedTextControl(
+                    lambda app: [('class:window.title', ' %s ' % title)]),
                 align=Align.CENTER,
                 char=BORDER.HORIZONTAL,
                 style='class:window.border'),
             Window(width=D.exact(1), height=D.exact(1),
                    char=BORDER.TOP_RIGHT,
-                   style='class:token.window.border'),
+                   style='class:window.border'),
         ]),
         VSplit([
             Window(width=D.exact(1),
@@ -156,7 +156,7 @@ class HistoryLayout(object):
             lexer=PygmentsLexer(RstLexer),
             input_processor=merge_processors(default_processors))
 
-        help_window = create_popup_window(
+        help_window = _create_popup_window(
             title='History Help',
             body=Window(
                 content=self.help_buffer_control,
@@ -184,7 +184,7 @@ class HistoryLayout(object):
         self.root_container = HSplit([
             #  Top title bar.
             Window(
-                content=TextFragmentsControl(get_tokens=_get_top_toolbar_tokens),
+                content=FormattedTextControl(_get_top_toolbar_fragments),
                 align=Align.CENTER,
                 style='class:status-toolbar'),
             FloatContainer(
@@ -217,19 +217,19 @@ class HistoryLayout(object):
             ArgToolbar(),
     #        SearchToolbar(),  # XXX
             Window(
-                content=TextFragmentsControl(
-                    get_tokens=partial(_get_bottom_toolbar_tokens, history=history)),
+                content=FormattedTextControl(
+                    partial(_get_bottom_toolbar_fragments, history=history)),
                 style='class:status-toolbar'),
         ])
 
         self.layout = Layout(self.root_container, history_window)
 
 
-def _get_top_toolbar_tokens(app):
+def _get_top_toolbar_fragments(app):
     return [('class:status-bar.title', 'History browser - Insert from history')]
 
 
-def _get_bottom_toolbar_tokens(app, history):
+def _get_bottom_toolbar_fragments(app, history):
     python_input = history.python_input
     @if_mousedown
     def f1(app, mouse_event):
@@ -240,7 +240,7 @@ def _get_bottom_toolbar_tokens(app, history):
         _select_other_window(history)
 
     return [
-           ('class:status-toolbar', ' ') ] + get_inputmode_tokens(app, python_input) + [
+           ('class:status-toolbar', ' ') ] + get_inputmode_fragments(app, python_input) + [
            ('class:status-toolbar', ' '),
            ('class:status-toolbar.key', '[Space]'),
            ('class:status-toolbar', ' Toggle '),
@@ -351,14 +351,14 @@ class GrayExistingText(Processor):
 
     def apply_transformation(self, transformation_input):
         lineno = transformation_input.lineno
-        tokens = transformation_input.tokens
+        fragments = transformation_input.fragments
 
         if (lineno < self._lines_before or
                 lineno >= self._lines_before + len(self.history_mapping.selected_lines)):
-            text = fragment_list_to_text(tokens)
-            return Transformation(tokens=[('class:history.existing-input', text)])
+            text = fragment_list_to_text(fragments)
+            return Transformation(fragments=[('class:history.existing-input', text)])
         else:
-            return Transformation(tokens=tokens)
+            return Transformation(fragments=fragments)
 
 
 class HistoryMapping(object):
@@ -598,7 +598,7 @@ class History(object):
         self.app = Application(
             loop=python_input.loop,
             layout=self.history_layout.layout,
-            use_alternate_screen=True,
+            full_screen=True,
             style=python_input._current_style,
             mouse_support=Condition(lambda app: python_input.enable_mouse_support),
             key_bindings=create_key_bindings(self, python_input, history_mapping)
