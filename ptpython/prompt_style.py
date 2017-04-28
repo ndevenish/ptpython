@@ -44,7 +44,7 @@ class IPythonPrompt(PromptStyle):
     def in_tokens(self, cli):
         return [
             ('class:in', 'In ['),
-            ('class:in,number', '%s' % self.python_input.current_statement_index),
+            ('class:in.number', '%s' % self.python_input.current_statement_index),
             ('class:in', ']: '),
         ]
 
@@ -56,7 +56,7 @@ class IPythonPrompt(PromptStyle):
     def out_tokens(self, cli):
         return [
             ('class:out', 'Out['),
-            ('class:out,number', '%s' % self.python_input.current_statement_index),
+            ('class:out.number', '%s' % self.python_input.current_statement_index),
             ('class:out', ']:'),
             ('', ' '),
         ]
@@ -70,7 +70,7 @@ class ClassicPrompt(PromptStyle):
         return [('class:prompt', '>>> ')]
 
     def in2_tokens(self, cli, width):
-        return [('class:prompt,dots', '...')]
+        return [('class:prompt.dots', '...')]
 
     def out_tokens(self, cli):
         return []

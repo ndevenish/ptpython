@@ -70,61 +70,61 @@ win32_code_style = {
 
 
 default_ui_style = {
-        # Classic prompt.
-        'prompt':                                 'bold',
-        'prompt dots':                            'noinherit',
+    # Classic prompt.
+    'prompt':                                 'bold',
+    'prompt.dots':                            'noinherit',
 
-        # (IPython <5.0) Prompt: "In [1]:"
-        'in':                                     'bold #008800',
-        'in number':                              '',
+    # (IPython <5.0) Prompt: "In [1]:"
+    'in':                                     'bold #008800',
+    'in.number':                              '',
 
-        # Return value.
-        'out':                                    '#ff0000',
-        'out number':                             '#ff0000',
+    # Return value.
+    'out':                                    '#ff0000',
+    'out.number':                             '#ff0000',
 
-        # Separator between windows. (Used above docstring.)
-        'separator':                              '#bbbbbb',
+    # Separator between windows. (Used above docstring.)
+    'separator':                              '#bbbbbb',
 
-        # System toolbar
-        'system-toolbar':                         '#22aaaa noinherit',
+    # System toolbar
+    'system-toolbar':                         '#22aaaa noinherit',
 
-        # "arg" toolbar.
-        'arg-toolbar':                            '#22aaaa noinherit',
-        'arg-toolbar.text':                       'noinherit',
+    # "arg" toolbar.
+    'arg-toolbar':                            '#22aaaa noinherit',
+    'arg-toolbar.text':                       'noinherit',
 
-        # Signature toolbar.
-        'signature-toolbar':                      'bg:#44bbbb #000000',
-        'signature-toolbar.currentname':          'bg:#008888 #ffffff bold',
-        'signature-toolbar.operator':             '#000000 bold',
+    # Signature toolbar.
+    'signature-toolbar':                      'bg:#44bbbb #000000',
+    'signature-toolbar.currentname':          'bg:#008888 #ffffff bold',
+    'signature-toolbar.operator':             '#000000 bold',
 
-        'docstring':                              '#888888',
+    'docstring':                              '#888888',
 
-        # Validation toolbar.
-        'validation-toolbar':                     'bg:#440000 #aaaaaa',
+    # Validation toolbar.
+    'validation-toolbar':                     'bg:#440000 #aaaaaa',
 
-        # Status toolbar.
-        'status-toolbar':                         'bg:#222222 #aaaaaa',
-        'status-toolbar.title':                   'underline',
-        'status-toolbar.inputmode':               'bg:#222222 #ffffaa',
-        'status-toolbar.key':                     'bg:#000000 #888888',
-        'status-toolbar.pastemodeon':             'bg:#aa4444 #ffffff',
-        'status-toolbar.pythonversion':           'bg:#222222 #ffffff bold',
+    # Status toolbar.
+    'status-toolbar':                         'bg:#222222 #aaaaaa',
+    'status-toolbar.title':                   'underline',
+    'status-toolbar.inputmode':               'bg:#222222 #ffffaa',
+    'status-toolbar.key':                     'bg:#000000 #888888',
+    'status-toolbar.pastemodeon':             'bg:#aa4444 #ffffff',
+    'status-toolbar.pythonversion':           'bg:#222222 #ffffff bold',
 
-        # When Control-C has been pressed. Grayed.
+    # When Control-C has been pressed. Grayed.
 #        'aborted':                                '#888888 bg:default important',
 
-        # The options sidebar.
-        'sidebar':                                'bg:#bbbbbb #000000',
-        'sidebar.title':                          'bg:#668866 #ffffff',
-        'sidebar.label':                          'bg:#bbbbbb #222222',
-        'sidebar.status':                         'bg:#dddddd #000011',
-        'sidebar.label selected':                 'bg:#222222 #eeeeee',
-        'sidebar.status selected':                'bg:#444444 #ffffff bold',
+    # The options sidebar.
+    'sidebar':                                'bg:#bbbbbb #000000',
+    'sidebar.title':                          'bg:#668866 #ffffff',
+    'sidebar.label':                          'bg:#bbbbbb #222222',
+    'sidebar.status':                         'bg:#dddddd #000011',
+    'sidebar.label selected':                 'bg:#222222 #eeeeee',
+    'sidebar.status selected':                'bg:#444444 #ffffff bold',
 
-        'sidebar.separator':                      'underline',
-        'sidebar.key':                            'bg:#bbddbb #000000 bold',
-        'sidebar.key.description':                'bg:#bbbbbb #000000',
-        'sidebar.helptext':                       'bg:#fdf6e3 #000011',
+    'sidebar.separator':                      'underline',
+    'sidebar.key':                            'bg:#bbddbb #000000 bold',
+    'sidebar.key.description':                'bg:#bbbbbb #000000',
+    'sidebar.helptext':                       'bg:#fdf6e3 #000011',
 
 #        # Styling for the history layout.
 #        history.line:                          '',
@@ -133,15 +133,15 @@ default_ui_style = {
 #        history.line.selected.current:         'bg:#88ff88 #000000',
 #        history.existinginput:                  '#888888',
 
-        # Help Window.
-        'window-border':                          '#aaaaaa',
-        'window-title':                           'bg:#bbbbbb #000000',
+    # Help Window.
+    'window-border':                          '#aaaaaa',
+    'window-title':                           'bg:#bbbbbb #000000',
 
-        # Meta-enter message.
-        'accept-message':                          'bg:#ffff88 #444444',
+    # Meta-enter message.
+    'accept-message':                          'bg:#ffff88 #444444',
 
-        # Exit confirmation.
-        'exit-confirmation':                       'bg:#884444 #ffffff',
+    # Exit confirmation.
+    'exit-confirmation':                       'bg:#884444 #ffffff',
 }
 
 
