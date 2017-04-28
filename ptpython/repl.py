@@ -130,7 +130,7 @@ class PythonRepl(PythonInput):
 
                     # Write output tokens.
                     out_tokens.extend(_lex_python_result(result_str))
-                    self.app.print_text_fragments(
+                    self.app.print_formatted_text(
                         token_list_to_formatted_text(out_tokens))
             # If not a valid `eval` expression, run using `exec` instead.
             except SyntaxError:
