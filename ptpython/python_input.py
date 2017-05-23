@@ -190,8 +190,8 @@ class PythonInput(object):
 
         # The buffers.
         self.default_buffer = self._create_buffer()
-        self.search_buffer = Buffer(loop=loop)
-        self.docstring_buffer = Buffer(loop=loop, read_only=True)
+        self.search_buffer = Buffer()
+        self.docstring_buffer = Buffer(read_only=True)
 
         # Tokens to be shown at the prompt.
         self.prompt_style = 'classic'  # The currently active style.
@@ -528,7 +528,7 @@ class PythonInput(object):
         Create the `Buffer` for the Python input.
         """
         python_buffer = Buffer(
-            loop=self.loop, name=DEFAULT_BUFFER,
+            name=DEFAULT_BUFFER,
             complete_while_typing=Condition(lambda: self.complete_while_typing),
             enable_history_search=Condition(lambda: self.enable_history_search),
             tempfile_suffix='.py',
