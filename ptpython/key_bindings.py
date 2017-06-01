@@ -5,6 +5,7 @@ from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.filters import HasSelection, HasFocus, Condition, ViInsertMode, EmacsInsertMode, EmacsMode
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
+from prompt_toolkit.application import get_app
 from .utils import document_is_multiline_python
 
 __all__ = (
@@ -15,7 +16,7 @@ __all__ = (
 
 
 @Condition
-def tab_should_insert_whitespace(app):
+def tab_should_insert_whitespace():
     """
     When the 'tab' key is pressed with only whitespace character before the
     cursor, do autocompletion. Otherwise, insert indentation.
@@ -24,7 +25,7 @@ def tab_should_insert_whitespace(app):
     completion. It doesn't make sense to start the first line with
     indentation.
     """
-    b = app.current_buffer
+    b = get_app().current_buffer
     before_cursor = b.document.current_line_before_cursor
 
     return bool(b.text and (not before_cursor or before_cursor.isspace()))
@@ -36,7 +37,7 @@ def load_python_bindings(python_input):
     """
     bindings = KeyBindings()
 
-    sidebar_visible = Condition(lambda app: python_input.show_sidebar)
+    sidebar_visible = Condition(lambda: python_input.show_sidebar)
     handle = bindings.add
     has_selection = HasSelection()
 
@@ -59,7 +60,7 @@ def load_python_bindings(python_input):
         """
         Select from the history.
         """
-        python_input.enter_history(event.app)
+        python_input.enter_history()
 
     @handle(Keys.F4)
     def _(event):
@@ -83,7 +84,7 @@ def load_python_bindings(python_input):
         event.app.current_buffer.insert_text('    ')
 
     @Condition
-    def is_multiline(app):
+    def is_multiline():
         return document_is_multiline_python(python_input.default_buffer.document)
 
     @handle(Keys.Enter, filter= ~sidebar_visible & ~has_selection &
@@ -104,7 +105,7 @@ def load_python_bindings(python_input):
                 text=b.text.rstrip(),
                 cursor_position=len(b.text.rstrip()))
 
-            b.validate_and_handle(event.app)
+            b.validate_and_handle()
 
     @handle(Keys.Enter, filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
@@ -138,16 +139,16 @@ def load_python_bindings(python_input):
                     text=b.text.rstrip(),
                     cursor_position=len(b.text.rstrip()))
 
-                b.validate_and_handle(event.app)
+                b.validate_and_handle()
         else:
             auto_newline(b)
 
-    @handle(Keys.ControlD, filter=~sidebar_visible & Condition(lambda app:
+    @handle(Keys.ControlD, filter=~sidebar_visible & Condition(lambda:
             # Only when the `confirm_exit` flag is set.
             python_input.confirm_exit and
             # And the current buffer is empty.
-            app.current_buffer == python_input.default_buffer and
-            not app.current_buffer.text))
+            get_app().current_buffer == python_input.default_buffer and
+            not get_app().current_buffer.text))
     def _(event):
         """
         Override Control-D exit, to ask for confirmation.
@@ -164,7 +165,7 @@ def load_sidebar_bindings(python_input):
     bindings = KeyBindings()
 
     handle = bindings.add
-    sidebar_visible = Condition(lambda app: python_input.show_sidebar)
+    sidebar_visible = Condition(lambda: python_input.show_sidebar)
 
     @handle(Keys.Up, filter=sidebar_visible)
     @handle(Keys.ControlP, filter=sidebar_visible)
@@ -216,7 +217,7 @@ def load_confirm_exit_bindings(python_input):
     bindings = KeyBindings()
 
     handle = bindings.add
-    confirmation_visible = Condition(lambda app: python_input.show_exit_confirmation)
+    confirmation_visible = Condition(lambda: python_input.show_exit_confirmation)
 
     @handle('y', filter=confirmation_visible)
     @handle('Y', filter=confirmation_visible)
