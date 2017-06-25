@@ -12,9 +12,7 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.filters import Condition, has_focus
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
-from prompt_toolkit.key_binding.defaults import load_key_bindings
-from prompt_toolkit.keys import Keys
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, VSplit, Window, FloatContainer, Float, ConditionalContainer, Container, ScrollOffsets, Align
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
@@ -22,7 +20,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import PygmentsLexer
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
 from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, merge_processors
-from prompt_toolkit.layout.toolbars import ArgToolbar, SearchToolbar
+from prompt_toolkit.layout.widgets.toolbars import ArgToolbar, SearchToolbar
 from prompt_toolkit.layout.utils import fragment_list_to_text
 from prompt_toolkit.layout.widgets import Frame
 from pygments.lexers import RstLexer
@@ -449,8 +447,8 @@ def create_key_bindings(history, python_input, history_mapping):
         b.cursor_position = b.document.translate_row_col_to_index(line_no + 1, 0)
 
     @handle(' ', filter=has_focus(DEFAULT_BUFFER))
-    @handle(Keys.Delete, filter=has_focus(DEFAULT_BUFFER))
-    @handle(Keys.ControlH, filter=has_focus(DEFAULT_BUFFER))
+    @handle('delete', filter=has_focus(DEFAULT_BUFFER))
+    @handle('c-h', filter=has_focus(DEFAULT_BUFFER))
     def _(event):
         """
         Space: remove line from default pane.
@@ -471,58 +469,53 @@ def create_key_bindings(history, python_input, history_mapping):
     help_focussed = has_focus(history.help_buffer)
     main_buffer_focussed = has_focus(history.history_buffer) | has_focus(history.default_buffer)
 
-    @handle(Keys.Tab, filter=main_buffer_focussed)
-    @handle(Keys.ControlX, filter=main_buffer_focussed, eager=True)
+    @handle('tab', filter=main_buffer_focussed)
+    @handle('c-x', filter=main_buffer_focussed, eager=True)
         # Eager: ignore the Emacs [Ctrl-X Ctrl-X] binding.
-    @handle(Keys.ControlW, filter=main_buffer_focussed)
+    @handle('c-w', filter=main_buffer_focussed)
     def _(event):
         " Select other window. "
         _select_other_window(history)
 
-    @handle(Keys.F4)
+    @handle('f4')
     def _(event):
         " Switch between Emacs/Vi mode. "
         python_input.vi_mode = not python_input.vi_mode
 
-    @handle(Keys.F1)
+    @handle('f1')
     def _(event):
         " Display/hide help. "
         _toggle_help(history)
 
-    @handle(Keys.Enter, filter=help_focussed)
-    @handle(Keys.ControlC, filter=help_focussed)
-    @handle(Keys.ControlG, filter=help_focussed)
-    @handle(Keys.Escape, filter=help_focussed)
+    @handle('enter', filter=help_focussed)
+    @handle('c-c', filter=help_focussed)
+    @handle('c-g', filter=help_focussed)
+    @handle('escape', filter=help_focussed)
     def _(event):
         " Leave help. "
         event.app.layout.focus_previous()
 
     @handle('q', filter=main_buffer_focussed)
-    @handle(Keys.F3, filter=main_buffer_focussed)
-    @handle(Keys.ControlC, filter=main_buffer_focussed)
-    @handle(Keys.ControlG, filter=main_buffer_focussed)
+    @handle('f3', filter=main_buffer_focussed)
+    @handle('c-c', filter=main_buffer_focussed)
+    @handle('c-g', filter=main_buffer_focussed)
     def _(event):
         " Cancel and go back. "
         event.app.set_return_value(None)
 
-    @handle(Keys.Enter, filter=main_buffer_focussed)
+    @handle('enter', filter=main_buffer_focussed)
     def _(event):
         " Accept input. "
         event.app.set_return_value(history.default_buffer.document)
 
     enable_system_bindings = Condition(lambda: python_input.enable_system_bindings)
 
-    @handle(Keys.ControlZ, filter=enable_system_bindings)
+    @handle('c-z', filter=enable_system_bindings)
     def _(event):
         " Suspend to background. "
         event.app.suspend_to_background()
 
-    return merge_key_bindings([
-        load_key_bindings(
-            enable_search=True,
-            enable_extra_page_navigation=True),
-        bindings
-    ])
+    return bindings
 
 
 class History(object):
@@ -538,8 +531,13 @@ class History(object):
         history_mapping = HistoryMapping(self, python_input.history, original_document)
         self.history_mapping = history_mapping
 
+        document = Document(history_mapping.concatenated_history)
+        document = Document(
+            document.text,
+            cursor_position=document.cursor_position + document.get_start_of_line_position())
+
         self.history_buffer = Buffer(
-            document=Document(history_mapping.concatenated_history),
+            document=document,
             on_cursor_position_changed=self._history_buffer_pos_changed,
             accept_handler=(
                 lambda buff: get_app().set_return_value(self.default_buffer.text)),

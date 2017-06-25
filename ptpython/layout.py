@@ -16,7 +16,7 @@ from prompt_toolkit.layout.margins import PromptMargin
 from prompt_toolkit.layout.menus import CompletionsMenu, MultiColumnCompletionsMenu
 from prompt_toolkit.layout.processors import ConditionalProcessor, AppendAutoSuggestion, HighlightSearchProcessor, HighlightSelectionProcessor, HighlightMatchingBracketProcessor, Processor, Transformation
 from prompt_toolkit.layout.processors import merge_processors
-from prompt_toolkit.layout.toolbars import CompletionsToolbar, ArgToolbar, SearchToolbar, ValidationToolbar, SystemToolbar
+from prompt_toolkit.layout.widgets.toolbars import CompletionsToolbar, ArgToolbar, SearchToolbar, ValidationToolbar, SystemToolbar
 from prompt_toolkit.layout.utils import fragment_list_width
 from prompt_toolkit.reactive import Integer
 from prompt_toolkit.selection import SelectionType
@@ -524,7 +524,7 @@ def create_layout(python_input,
             # cursor is never below the "Press [Meta+Enter]" message which is a float.
             scroll_offsets=ScrollOffsets(bottom=1, left=4, right=4),
             # As long as we're editing, prefer a minimal height of 6.
-            get_height=(lambda: (
+            height=(lambda: (
                 None if get_app().is_done or python_input.show_exit_confirmation
                         else input_buffer_height)),
             wrap_lines=Condition(lambda: python_input.wrap_lines),
@@ -562,7 +562,7 @@ def create_layout(python_input,
                     ]),
                 ArgToolbar(),
                 search_toolbar,
-                SystemToolbar(python_input.loop),
+                SystemToolbar(),
                 ValidationToolbar(),
                 CompletionsToolbar(extra_filter=show_completions_toolbar(python_input)),
 

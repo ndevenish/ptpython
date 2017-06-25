@@ -41,42 +41,42 @@ def load_python_bindings(python_input):
     handle = bindings.add
     has_selection = HasSelection()
 
-    @handle(Keys.ControlL)
+    @handle('c-l')
     def _(event):
         """
         Clear whole screen and render again -- also when the sidebar is visible.
         """
         event.app.renderer.clear()
 
-    @handle(Keys.F2)
+    @handle('f2')
     def _(event):
         """
         Show/hide sidebar.
         """
         python_input.show_sidebar = not python_input.show_sidebar
 
-    @handle(Keys.F3)
+    @handle('f3')
     def _(event):
         """
         Select from the history.
         """
         python_input.enter_history()
 
-    @handle(Keys.F4)
+    @handle('f4')
     def _(event):
         """
         Toggle between Vi and Emacs mode.
         """
         python_input.vi_mode = not python_input.vi_mode
 
-    @handle(Keys.F6)
+    @handle('f6')
     def _(event):
         """
         Enable/Disable paste mode.
         """
         python_input.paste_mode = not python_input.paste_mode
 
-    @handle(Keys.Tab, filter= ~sidebar_visible & ~has_selection & tab_should_insert_whitespace)
+    @handle('tab', filter= ~sidebar_visible & ~has_selection & tab_should_insert_whitespace)
     def _(event):
         """
         When tab should insert whitespace, do that instead of completion.
@@ -87,7 +87,7 @@ def load_python_bindings(python_input):
     def is_multiline():
         return document_is_multiline_python(python_input.default_buffer.document)
 
-    @handle(Keys.Enter, filter= ~sidebar_visible & ~has_selection &
+    @handle('enter', filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
             HasFocus(DEFAULT_BUFFER) & ~is_multiline)
     @handle(Keys.Escape, Keys.Enter, filter= ~sidebar_visible & EmacsMode())
@@ -97,17 +97,15 @@ def load_python_bindings(python_input):
         """
         b = event.current_buffer
 
-        if b.validate():
-            # When the cursor is at the end, and we have an empty line:
-            # drop the empty lines, but return the value.
+        # When the cursor is at the end, and we have an empty line:
+        # drop the empty lines, but return the value.
+        document = Document(
+            text=b.text.rstrip(),
+            cursor_position=len(b.text.rstrip()))
 
-            b.document = Document(
-                text=b.text.rstrip(),
-                cursor_position=len(b.text.rstrip()))
+        b.validate_and_handle(document)
 
-            b.validate_and_handle()
-
-    @handle(Keys.Enter, filter= ~sidebar_visible & ~has_selection &
+    @handle('enter', filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
             HasFocus(DEFAULT_BUFFER) & is_multiline)
     def _(event):
@@ -132,18 +130,17 @@ def load_python_bindings(python_input):
 
         elif at_the_end(b) and b.document.text.replace(' ', '').endswith(
                     '\n' * (empty_lines_required - 1)):
-            if b.validate():
-                # When the cursor is at the end, and we have an empty line:
-                # drop the empty lines, but return the value.
-                b.document = Document(
-                    text=b.text.rstrip(),
-                    cursor_position=len(b.text.rstrip()))
+            # When the cursor is at the end, and we have an empty line:
+            # drop the empty lines, but return the value.
+            document = Document(
+                text=b.text.rstrip(),
+                cursor_position=len(b.text.rstrip()))
 
-                b.validate_and_handle()
+            b.validate_and_handle(document)
         else:
             auto_newline(b)
 
-    @handle(Keys.ControlD, filter=~sidebar_visible & Condition(lambda:
+    @handle('c-d', filter=~sidebar_visible & Condition(lambda:
             # Only when the `confirm_exit` flag is set.
             python_input.confirm_exit and
             # And the current buffer is empty.
@@ -154,6 +151,11 @@ def load_python_bindings(python_input):
         Override Control-D exit, to ask for confirmation.
         """
         python_input.show_exit_confirmation = True
+
+    @handle('c-c')
+    def _(event):
+        " Abort when Control-C has been pressed. "
+        event.app.abort()
 
     return bindings
 

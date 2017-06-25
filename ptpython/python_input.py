@@ -5,8 +5,9 @@ This can be used for creation of Python REPLs.
 from __future__ import unicode_literals
 
 from prompt_toolkit.application import Application, get_app
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory, ConditionalAutoSuggest
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory, ConditionalAutoSuggest, ThreadedAutoSuggest
 from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.completion import ThreadedCompleter
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
 from prompt_toolkit.eventloop.defaults import get_event_loop
@@ -14,7 +15,6 @@ from prompt_toolkit.filters import Condition
 from prompt_toolkit.history import FileHistory, InMemoryHistory
 from prompt_toolkit.input.defaults import create_input
 from prompt_toolkit.key_binding import merge_key_bindings, ConditionalKeyBindings, KeyBindings
-from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout.lexers import PygmentsLexer, DynamicLexer, SimpleLexer
 from prompt_toolkit.output.defaults import create_output
@@ -498,18 +498,18 @@ class PythonInput(object):
                 extra_body=self._extra_layout_body,
                 extra_toolbars=self._extra_toolbars),
             key_bindings=merge_key_bindings([
-                ConditionalKeyBindings(
-                    key_bindings=load_key_bindings(
-                        enable_abort_and_exit_bindings=True,
-                        enable_search=True,
-                        enable_open_in_editor=Condition(lambda: self.enable_open_in_editor),
-                        enable_system_bindings=Condition(lambda: self.enable_system_bindings),
-                        enable_auto_suggest_bindings=Condition(lambda: self.enable_auto_suggest)),
-
+#                ConditionalKeyBindings(
+#                    key_bindings=load_key_bindings(
+#                        enable_abort_and_exit_bindings=True,
+#                        enable_search=True,
+#                        enable_open_in_editor=Condition(lambda: self.enable_open_in_editor),
+#                        enable_system_bindings=Condition(lambda: self.enable_system_bindings),
+#                        enable_auto_suggest_bindings=Condition(lambda: self.enable_auto_suggest)),
+#),
                     # Disable all default key bindings when the sidebar or the exit confirmation
                     # are shown.
-                    filter=Condition(lambda: not (self.show_sidebar or self.show_exit_confirmation))
-                ),
+#                    filter=Condition(lambda: not (self.show_sidebar or self.show_exit_confirmation))
+#                ),
                 load_python_bindings(self),
                 load_sidebar_bindings(self),
                 load_confirm_exit_bindings(self),
@@ -534,12 +534,12 @@ class PythonInput(object):
             enable_history_search=Condition(lambda: self.enable_history_search),
             tempfile_suffix='.py',
             history=self.history,
-            completer=self._completer,
+            completer=ThreadedCompleter(self._completer),
             validator=ConditionalValidator(
                 self._validator,
                 Condition(lambda: self.enable_input_validation)),
             auto_suggest=ConditionalAutoSuggest(
-                AutoSuggestFromHistory(),
+                ThreadedAutoSuggest(AutoSuggestFromHistory()),
                 Condition(lambda: self.enable_auto_suggest)),
             accept_handler=self._accept_handler,
             on_text_changed=self._on_input_timeout)
