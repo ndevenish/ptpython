@@ -97,13 +97,14 @@ def load_python_bindings(python_input):
         """
         b = event.current_buffer
 
-        # When the cursor is at the end, and we have an empty line:
-        # drop the empty lines, but return the value.
-        document = Document(
-            text=b.text.rstrip(),
-            cursor_position=len(b.text.rstrip()))
+        if b.validate():
+            # When the cursor is at the end, and we have an empty line:
+            # drop the empty lines, but return the value.
+            b.document = Document(
+                text=b.text.rstrip(),
+                cursor_position=len(b.text.rstrip()))
 
-        b.validate_and_handle(document)
+            b.validate_and_handle()
 
     @handle('enter', filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
@@ -132,11 +133,12 @@ def load_python_bindings(python_input):
                     '\n' * (empty_lines_required - 1)):
             # When the cursor is at the end, and we have an empty line:
             # drop the empty lines, but return the value.
-            document = Document(
-                text=b.text.rstrip(),
-                cursor_position=len(b.text.rstrip()))
+            if b.validate():
+                b.document = Document(
+                    text=b.text.rstrip(),
+                    cursor_position=len(b.text.rstrip()))
 
-            b.validate_and_handle(document)
+                b.validate_and_handle()
         else:
             auto_newline(b)
 
