@@ -20,9 +20,9 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.lexers import PygmentsLexer
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
 from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, merge_processors
-from prompt_toolkit.layout.widgets.toolbars import ArgToolbar, SearchToolbar
+from prompt_toolkit.widgets.toolbars import ArgToolbar, SearchToolbar
 from prompt_toolkit.layout.utils import fragment_list_to_text
-from prompt_toolkit.layout.widgets import Frame
+from prompt_toolkit.widgets import Frame
 from pygments.lexers import RstLexer
 
 from .utils import if_mousedown
