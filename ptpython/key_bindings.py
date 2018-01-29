@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER
-from prompt_toolkit.filters import HasSelection, HasFocus, Condition, ViInsertMode, EmacsInsertMode, EmacsMode
+from prompt_toolkit.filters import HasSelection, has_focus, Condition, ViInsertMode, EmacsInsertMode, EmacsMode
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.application import get_app
@@ -89,7 +89,7 @@ def load_python_bindings(python_input):
 
     @handle('enter', filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
-            HasFocus(DEFAULT_BUFFER) & ~is_multiline)
+            has_focus(DEFAULT_BUFFER) & ~is_multiline)
     @handle(Keys.Escape, Keys.Enter, filter= ~sidebar_visible & EmacsMode())
     def _(event):
         """
@@ -108,7 +108,7 @@ def load_python_bindings(python_input):
 
     @handle('enter', filter= ~sidebar_visible & ~has_selection &
             (ViInsertMode() | EmacsInsertMode()) &
-            HasFocus(DEFAULT_BUFFER) & is_multiline)
+            has_focus(DEFAULT_BUFFER) & is_multiline)
     def _(event):
         """
         Behaviour of the Enter key.
@@ -142,19 +142,20 @@ def load_python_bindings(python_input):
         else:
             auto_newline(b)
 
-    @handle('c-d', filter=~sidebar_visible & Condition(lambda:
-            # Only when the `confirm_exit` flag is set.
-            python_input.confirm_exit and
-            # And the current buffer is empty.
-            get_app().current_buffer == python_input.default_buffer and
-            not get_app().current_buffer.text))
+    @handle('c-d', filter=~sidebar_visible &
+            has_focus(python_input.default_buffer) &
+            Condition(lambda:
+                # Only when the `confirm_exit` flag is set.
+                python_input.confirm_exit and
+                # And the current buffer is empty.
+                not get_app().current_buffer.text))
     def _(event):
         """
         Override Control-D exit, to ask for confirmation.
         """
         python_input.show_exit_confirmation = True
 
-    @handle('c-c')
+    @handle('c-c', filter=has_focus(python_input.default_buffer))
     def _(event):
         " Abort when Control-C has been pressed. "
         event.app.abort()
