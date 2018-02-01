@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from prompt_toolkit.application import get_app
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
-from prompt_toolkit.filters import IsDone, HasCompletions, RendererHeightIsKnown, HasFocus, Condition
+from prompt_toolkit.filters import is_done, has_completions, renderer_height_is_known, has_focus, Condition
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout.containers import Window, HSplit, VSplit, FloatContainer, Float, ConditionalContainer, ScrollOffsets
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
@@ -193,7 +193,7 @@ def python_sidebar_help(python_input):
             style=token,
             height=Dimension(min=3)),
         filter=ShowSidebar(python_input) &
-               Condition(lambda: python_input.show_sidebar_help) & ~IsDone())
+               Condition(lambda: python_input.show_sidebar_help) & ~is_done)
 
 
 def signature_toolbar(python_input):
@@ -257,12 +257,12 @@ def signature_toolbar(python_input):
             # Show only when there is a signature
             HasSignature(python_input) &
             # And there are no completions to be shown. (would cover signature pop-up.)
-            ~(HasCompletions() & (show_completions_menu(python_input) |
+            ~(has_completions & (show_completions_menu(python_input) |
                                    show_multi_column_completions_menu(python_input)))
             # Signature needs to be shown.
             & ShowSignature(python_input) &
             # Not done yet.
-            ~IsDone())
+            ~is_done)
 
 
 class PythonPromptMargin(PromptMargin):
@@ -338,7 +338,7 @@ def status_bar(python_input):
 
     return ConditionalContainer(
             content=Window(content=FormattedTextControl(get_text_fragments), style=TB),
-            filter=~IsDone() & RendererHeightIsKnown() &
+            filter=~is_done & renderer_height_is_known &
                  Condition(lambda: python_input.show_status_bar and
                                       not python_input.show_exit_confirmation))
 
@@ -420,7 +420,7 @@ def show_sidebar_button_info(python_input):
             style='class:status-toolbar',
             height=Dimension.exact(1),
             width=Dimension.exact(width)),
-        filter=~IsDone() & RendererHeightIsKnown() &
+        filter=~is_done & renderer_height_is_known &
             Condition(lambda: python_input.show_status_bar and
                                   not python_input.show_exit_confirmation))
 
@@ -437,7 +437,7 @@ def exit_confirmation(python_input, style='class:exit-confirmation'):
             (style, '  \n'),
         ]
 
-    visible = ~IsDone() & Condition(lambda: python_input.show_exit_confirmation)
+    visible = ~is_done & Condition(lambda: python_input.show_exit_confirmation)
 
     return ConditionalContainer(
         content=Window(FormattedTextControl(get_text_fragments), style=style),   # , has_focus=visible)),
@@ -461,7 +461,7 @@ def meta_enter_message(python_input):
                 python_input.accept_input_on_enter is None) and
             '\n' in b.text)
 
-    visible = ~IsDone() & HasFocus(DEFAULT_BUFFER) & Condition(extra_condition)
+    visible = ~is_done & has_focus(DEFAULT_BUFFER) & Condition(extra_condition)
 
     return ConditionalContainer(
         content=Window(FormattedTextControl(get_text_fragments)),
@@ -501,18 +501,18 @@ def create_layout(python_input,
                 input_processor=merge_processors([
                     ConditionalProcessor(
                         processor=HighlightSearchProcessor(preview_search=True),
-                        filter=HasFocus(SEARCH_BUFFER) | HasFocus(search_toolbar.control),
+                        filter=has_focus(SEARCH_BUFFER) | has_focus(search_toolbar.control),
                     ),
                     HighlightSelectionProcessor(),
                     DisplayMultipleCursors(),
                     # Show matching parentheses, but only while editing.
                     ConditionalProcessor(
                         processor=HighlightMatchingBracketProcessor(chars='[](){}'),
-                        filter=HasFocus(DEFAULT_BUFFER) & ~IsDone() &
+                        filter=has_focus(DEFAULT_BUFFER) & ~is_done &
                             Condition(lambda: python_input.highlight_matching_parenthesis)),
                     ConditionalProcessor(
                         processor=AppendAutoSuggestion(),
-                        filter=~IsDone())
+                        filter=~is_done)
                 ] + extra_buffer_processors),
                 menu_position=menu_position,
 
@@ -576,7 +576,7 @@ def create_layout(python_input,
                         height=D.exact(1),
                         char='\u2500',
                         style='class:separator'),
-                    filter=HasSignature(python_input) & ShowDocstring(python_input) & ~IsDone()),
+                    filter=HasSignature(python_input) & ShowDocstring(python_input) & ~is_done),
                 ConditionalContainer(
                     content=Window(
                         BufferControl(
@@ -585,8 +585,7 @@ def create_layout(python_input,
                             #lexer=PythonLexer,
                         ),
                         height=D(max=12)),
-                    filter=HasSignature(python_input) & ShowDocstring(python_input) & ~IsDone(),
-                ),
+                    filter=HasSignature(python_input) & ShowDocstring(python_input) & ~is_done),
             ]),
             ConditionalContainer(
                 content=HSplit([
@@ -594,7 +593,7 @@ def create_layout(python_input,
                     Window(style='class:sidebar,separator', height=1),
                     python_sidebar_navigation(python_input),
                 ]),
-                filter=ShowSidebar(python_input) & ~IsDone())
+                filter=ShowSidebar(python_input) & ~is_done)
         ]),
     ] + extra_toolbars + [
         VSplit([

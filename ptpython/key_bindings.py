@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER
-from prompt_toolkit.filters import HasSelection, has_focus, Condition, ViInsertMode, EmacsInsertMode, EmacsMode
+from prompt_toolkit.filters import has_selection, has_focus, Condition, vi_insert_mode, emacs_insert_mode, emacs_mode
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.application import get_app
@@ -39,7 +39,6 @@ def load_python_bindings(python_input):
 
     sidebar_visible = Condition(lambda: python_input.show_sidebar)
     handle = bindings.add
-    has_selection = HasSelection()
 
     @handle('c-l')
     def _(event):
@@ -88,9 +87,9 @@ def load_python_bindings(python_input):
         return document_is_multiline_python(python_input.default_buffer.document)
 
     @handle('enter', filter= ~sidebar_visible & ~has_selection &
-            (ViInsertMode() | EmacsInsertMode()) &
+            (vi_insert_mode | emacs_insert_mode) &
             has_focus(DEFAULT_BUFFER) & ~is_multiline)
-    @handle(Keys.Escape, Keys.Enter, filter= ~sidebar_visible & EmacsMode())
+    @handle(Keys.Escape, Keys.Enter, filter= ~sidebar_visible & emacs_mode)
     def _(event):
         """
         Accept input (for single line input).
@@ -107,7 +106,7 @@ def load_python_bindings(python_input):
             b.validate_and_handle()
 
     @handle('enter', filter= ~sidebar_visible & ~has_selection &
-            (ViInsertMode() | EmacsInsertMode()) &
+            (vi_insert_mode | emacs_insert_mode) &
             has_focus(DEFAULT_BUFFER) & is_multiline)
     def _(event):
         """
