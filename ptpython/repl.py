@@ -141,7 +141,11 @@ class PythonRepl(PythonInput):
                         out_tokens.extend(_lex_python_result(result_str))
                     else:
                         out_tokens.append(('', result_str))
-                    print_formatted_text(PygmentsTokens(out_tokens))
+
+                    print_formatted_text(
+                        PygmentsTokens(out_tokens), style=self._current_style,
+                        include_default_pygments_style=False)
+
             # If not a valid `eval` expression, run using `exec` instead.
             except SyntaxError:
                 code = compile_with_flags(line, 'exec')
@@ -181,7 +185,10 @@ class PythonRepl(PythonInput):
             tokens = list(_lex_python_traceback(tb))
         else:
             tokens = [(Token, tb)]
-        print_formatted_text(PygmentsTokens(tokens))
+
+        print_formatted_text(
+            PygmentsTokens(tokens), style=self._current_style,
+            include_default_pygments_style=False)
 
         output.write('%s\n' % e)
         output.flush()

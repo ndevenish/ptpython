@@ -69,6 +69,8 @@ win32_code_style = {
 
 
 default_ui_style = {
+    'control-character':    'ansiblue',
+
     # Classic prompt.
     'prompt':                                 'bold',
     'prompt.dots':                            'noinherit',
