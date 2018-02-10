@@ -17,7 +17,7 @@ from prompt_toolkit.history import FileHistory, InMemoryHistory
 from prompt_toolkit.input.defaults import create_input
 from prompt_toolkit.key_binding import merge_key_bindings, ConditionalKeyBindings, KeyBindings
 from prompt_toolkit.key_binding.vi_state import InputMode
-from prompt_toolkit.layout.lexers import PygmentsLexer, DynamicLexer, SimpleLexer
+from prompt_toolkit.lexers import PygmentsLexer, DynamicLexer, SimpleLexer
 from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit.styles import DynamicStyle
 from prompt_toolkit.utils import is_windows
