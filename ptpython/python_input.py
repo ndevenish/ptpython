@@ -18,6 +18,7 @@ from prompt_toolkit.input.defaults import create_input
 from prompt_toolkit.key_binding import merge_key_bindings, ConditionalKeyBindings, KeyBindings
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.lexers import PygmentsLexer, DynamicLexer, SimpleLexer
+from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit.styles import DynamicStyle
 from prompt_toolkit.utils import is_windows
@@ -113,6 +114,14 @@ class Option(object):
         self.activate_next(_previous=True)
 
 
+COLOR_DEPTHS = {
+    ColorDepth.DEPTH_1_BIT: 'Monochrome',
+    ColorDepth.DEPTH_4_BIT: 'ANSI Colors',
+    ColorDepth.DEPTH_8_BIT: '256 colors',
+    ColorDepth.DEPTH_24_BIT: 'True color',
+}
+
+
 class PythonInput(object):
     """
     Prompt for reading Python input.
@@ -128,7 +137,7 @@ class PythonInput(object):
 
                  input=None,
                  output=None,
-                 true_color=False,
+                 color_depth=None,
 
                  # For internal use.
                  extra_key_bindings=None,
@@ -139,9 +148,6 @@ class PythonInput(object):
 
         self.get_globals = get_globals or (lambda: {})
         self.get_locals = get_locals or self.get_globals
-
-        self.output = output or create_output(true_color=Condition(lambda: self.true_color))
-        self.input = input or create_input(sys.stdin)
 
         self._completer = _completer or PythonCompleter(self.get_globals, self.get_locals)
         self._validator = _validator or PythonValidator(self.get_compiler_flags)
@@ -218,7 +224,6 @@ class PythonInput(object):
             self._current_code_style_name = 'win32'
 
         self._current_style = self._generate_style()
-        self.true_color = true_color
 
         # Options to be configurable from the sidebar.
         self.options = self._create_options()
@@ -234,7 +239,10 @@ class PythonInput(object):
         # (Never run more than one at the same time.)
         self._get_signatures_thread_running = False
 
-        self.app = self._create_application()
+        self.output = output or create_output()
+        self.input = input or create_input(sys.stdin)
+
+        self.app = self._create_application(color_depth)
 
         if vi_mode:
             self.app.editing_mode = EditingMode.VI
@@ -325,6 +333,9 @@ class PythonInput(object):
 
         self._current_ui_style_name = name
         self._current_style = self._generate_style()
+
+    def _use_color_depth(self, depth):
+        get_app().color_depth = depth
 
     def _generate_style(self):
         """
@@ -476,13 +487,16 @@ class PythonInput(object):
                        get_values=lambda: dict(
                             (name, partial(self.use_ui_colorscheme, name)) for name in self.ui_styles)
                        ),
-                simple_option(title='True color (24 bit)',
-                              description='Use 24 bit colors instead of 265 colors',
-                              field_name='true_color'),
+                Option(title='Color depth',
+                       description='Monochrome (1 bit), 16 ANSI colors (4 bit),\n256 colors (8 bit), or 24 bit.',
+                       get_current_value=lambda: COLOR_DEPTHS[get_app().color_depth],
+                       get_values=lambda: dict(
+                           (name, partial(self._use_color_depth, depth)) for depth, name in COLOR_DEPTHS.items())
+                       ),
             ]),
         ]
 
-    def _create_application(self):
+    def _create_application(self, color_depth):
         """
         Create an `Application` instance.
         """
@@ -518,6 +532,7 @@ class PythonInput(object):
                     self.extra_key_bindings,
                     Condition(lambda: not self.show_sidebar))
             ]),
+            color_depth=color_depth,
             paste_mode=Condition(lambda: self.paste_mode),
             mouse_support=Condition(lambda: self.enable_mouse_support),
             style=DynamicStyle(lambda: self._current_style),
