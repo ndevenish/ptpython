@@ -119,7 +119,7 @@ class HistoryLayout(object):
         self.help_buffer_control = BufferControl(
             buffer=history.help_buffer,
             lexer=PygmentsLexer(RstLexer),
-            input_processor=merge_processors(default_processors))
+            input_processors=default_processors)
 
         help_window = _create_popup_window(
             title='History Help',
@@ -131,14 +131,14 @@ class HistoryLayout(object):
 
         self.default_buffer_control = BufferControl(
             buffer=history.default_buffer,
-            input_processor=merge_processors(
-                default_processors + [GrayExistingText(history.history_mapping)]),
+            input_processors=
+                default_processors + [GrayExistingText(history.history_mapping)],
             lexer=PygmentsLexer(PythonLexer))
 
         self.history_buffer_control = BufferControl(
             buffer=history.history_buffer,
             lexer=PygmentsLexer(PythonLexer),
-            input_processor=merge_processors(default_processors))
+            input_processors=default_processors)
 
         history_window = Window(
             content=self.history_buffer_control,

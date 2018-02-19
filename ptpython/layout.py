@@ -498,7 +498,7 @@ def create_layout(python_input,
                 buffer=python_input.default_buffer,
                 search_buffer_control=search_toolbar.control,
                 lexer=lexer,
-                input_processor=merge_processors([
+                input_processors=[
                     ConditionalProcessor(
                         processor=HighlightSearchProcessor(),
                         filter=has_focus(SEARCH_BUFFER) | has_focus(search_toolbar.control),
@@ -517,7 +517,7 @@ def create_layout(python_input,
                     ConditionalProcessor(
                         processor=AppendAutoSuggestion(),
                         filter=~is_done)
-                ] + extra_buffer_processors),
+                ] + extra_buffer_processors,
                 menu_position=menu_position,
 
                 # Make sure that we always see the result of an reverse-i-search:
