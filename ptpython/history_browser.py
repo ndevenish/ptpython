@@ -19,7 +19,7 @@ from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
-from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightSelectionProcessor, merge_processors
+from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightIncrementalSearchProcessor, HighlightSelectionProcessor, merge_processors
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.widgets import Frame
 from prompt_toolkit.widgets.toolbars import ArgToolbar, SearchToolbar
@@ -111,7 +111,8 @@ class HistoryLayout(object):
     """
     def __init__(self, history):
         default_processors = [
-            HighlightSearchProcessor(preview_search=True),
+            HighlightSearchProcessor(),
+            HighlightIncrementalSearchProcessor(),
             HighlightSelectionProcessor()
         ]
 
