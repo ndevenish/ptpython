@@ -15,7 +15,6 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.margins import PromptMargin
 from prompt_toolkit.layout.menus import CompletionsMenu, MultiColumnCompletionsMenu
 from prompt_toolkit.layout.processors import ConditionalProcessor, AppendAutoSuggestion, HighlightSearchProcessor, HighlightIncrementalSearchProcessor, HighlightSelectionProcessor, HighlightMatchingBracketProcessor, Processor, Transformation
-from prompt_toolkit.layout.processors import merge_processors
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.reactive import Integer
 from prompt_toolkit.selection import SelectionType
@@ -498,11 +497,8 @@ def create_layout(python_input,
                 buffer=python_input.default_buffer,
                 search_buffer_control=search_toolbar.control,
                 lexer=lexer,
+                include_default_input_processors=False,
                 input_processors=[
-                    ConditionalProcessor(
-                        processor=HighlightSearchProcessor(),
-                        filter=has_focus(SEARCH_BUFFER) | has_focus(search_toolbar.control),
-                    ),
                     ConditionalProcessor(
                         processor=HighlightIncrementalSearchProcessor(),
                         filter=has_focus(SEARCH_BUFFER) | has_focus(search_toolbar.control),
