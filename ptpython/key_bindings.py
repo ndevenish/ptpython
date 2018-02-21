@@ -171,23 +171,23 @@ def load_sidebar_bindings(python_input):
     handle = bindings.add
     sidebar_visible = Condition(lambda: python_input.show_sidebar)
 
-    @handle(Keys.Up, filter=sidebar_visible)
-    @handle(Keys.ControlP, filter=sidebar_visible)
+    @handle('up', filter=sidebar_visible)
+    @handle('c-p', filter=sidebar_visible)
     @handle('k', filter=sidebar_visible)
     def _(event):
         " Go to previous option. "
         python_input.selected_option_index = (
             (python_input.selected_option_index - 1) % python_input.option_count)
 
-    @handle(Keys.Down, filter=sidebar_visible)
-    @handle(Keys.ControlN, filter=sidebar_visible)
+    @handle('down', filter=sidebar_visible)
+    @handle('c-n', filter=sidebar_visible)
     @handle('j', filter=sidebar_visible)
     def _(event):
         " Go to next option. "
         python_input.selected_option_index = (
             (python_input.selected_option_index + 1) % python_input.option_count)
 
-    @handle(Keys.Right, filter=sidebar_visible)
+    @handle('right', filter=sidebar_visible)
     @handle('l', filter=sidebar_visible)
     @handle(' ', filter=sidebar_visible)
     def _(event):
@@ -195,18 +195,18 @@ def load_sidebar_bindings(python_input):
         option = python_input.selected_option
         option.activate_next()
 
-    @handle(Keys.Left, filter=sidebar_visible)
+    @handle('left', filter=sidebar_visible)
     @handle('h', filter=sidebar_visible)
     def _(event):
         " Select previous value for current option. "
         option = python_input.selected_option
         option.activate_previous()
 
-    @handle(Keys.ControlC, filter=sidebar_visible)
-    @handle(Keys.ControlG, filter=sidebar_visible)
-    @handle(Keys.ControlD, filter=sidebar_visible)
-    @handle(Keys.Enter, filter=sidebar_visible)
-    @handle(Keys.Escape, filter=sidebar_visible)
+    @handle('c-c', filter=sidebar_visible)
+    @handle('c-d', filter=sidebar_visible)
+    @handle('c-d', filter=sidebar_visible)
+    @handle('enter', filter=sidebar_visible)
+    @handle('escape', filter=sidebar_visible)
     def _(event):
         " Hide sidebar. "
         python_input.show_sidebar = False
@@ -225,8 +225,8 @@ def load_confirm_exit_bindings(python_input):
 
     @handle('y', filter=confirmation_visible)
     @handle('Y', filter=confirmation_visible)
-    @handle(Keys.Enter, filter=confirmation_visible)
-    @handle(Keys.ControlD, filter=confirmation_visible)
+    @handle('enter', filter=confirmation_visible)
+    @handle('c-d', filter=confirmation_visible)
     def _(event):
         """
         Really quit.

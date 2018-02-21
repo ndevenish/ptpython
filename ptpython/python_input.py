@@ -512,18 +512,6 @@ class PythonInput(object):
                 extra_body=self._extra_layout_body,
                 extra_toolbars=self._extra_toolbars),
             key_bindings=merge_key_bindings([
-#                ConditionalKeyBindings(
-#                    key_bindings=load_key_bindings(
-#                        enable_abort_and_exit_bindings=True,
-#                        enable_search=True,
-#                        enable_open_in_editor=Condition(lambda: self.enable_open_in_editor),
-#                        enable_system_bindings=Condition(lambda: self.enable_system_bindings),
-#                        enable_auto_suggest_bindings=Condition(lambda: self.enable_auto_suggest)),
-#),
-                    # Disable all default key bindings when the sidebar or the exit confirmation
-                    # are shown.
-#                    filter=Condition(lambda: not (self.show_sidebar or self.show_exit_confirmation))
-#                ),
                 load_python_bindings(self),
                 load_sidebar_bindings(self),
                 load_confirm_exit_bindings(self),

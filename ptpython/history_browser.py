@@ -19,7 +19,7 @@ from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.margins import Margin, ScrollbarMargin
-from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightIncrementalSearchProcessor, HighlightSelectionProcessor, merge_processors
+from prompt_toolkit.layout.processors import Processor, Transformation, HighlightSearchProcessor, HighlightIncrementalSearchProcessor, HighlightSelectionProcessor
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.widgets import Frame
 from prompt_toolkit.widgets.toolbars import ArgToolbar, SearchToolbar
@@ -110,16 +110,11 @@ class HistoryLayout(object):
     application.
     """
     def __init__(self, history):
-        default_processors = [
-            HighlightSearchProcessor(),
-            HighlightIncrementalSearchProcessor(),
-            HighlightSelectionProcessor()
-        ]
+        search_toolbar = SearchToolbar()
 
         self.help_buffer_control = BufferControl(
             buffer=history.help_buffer,
-            lexer=PygmentsLexer(RstLexer),
-            input_processors=default_processors)
+            lexer=PygmentsLexer(RstLexer))
 
         help_window = _create_popup_window(
             title='History Help',
@@ -131,14 +126,14 @@ class HistoryLayout(object):
 
         self.default_buffer_control = BufferControl(
             buffer=history.default_buffer,
-            input_processors=
-                default_processors + [GrayExistingText(history.history_mapping)],
+            input_processors=[GrayExistingText(history.history_mapping)],
             lexer=PygmentsLexer(PythonLexer))
 
         self.history_buffer_control = BufferControl(
             buffer=history.history_buffer,
             lexer=PygmentsLexer(PythonLexer),
-            input_processors=default_processors)
+            search_buffer_control=search_toolbar.control,
+            preview_search=True)
 
         history_window = Window(
             content=self.history_buffer_control,
@@ -171,16 +166,12 @@ class HistoryLayout(object):
                     # Help text as a float.
                     Float(width=60, top=3, bottom=2,
                           content=ConditionalContainer(
-                                    # XXXX XXX
-                              # (We use InFocusStack, because it's possible to search
-                              # through the help text as well, and at that point the search
-                              # buffer has the focus.)
-                              content=help_window, filter=has_focus(history.help_buffer))),  # XXX
+                              content=help_window, filter=has_focus(history.help_buffer))),
                 ]
             ),
             # Bottom toolbars.
             ArgToolbar(),
-    #        SearchToolbar(),  # XXX
+            search_toolbar,
             Window(
                 content=FormattedTextControl(
                     partial(_get_bottom_toolbar_fragments, history=history)),
